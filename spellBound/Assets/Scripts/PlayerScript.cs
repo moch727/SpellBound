@@ -10,14 +10,17 @@ public class PlayerScript : MonoBehaviour
     private Animator animator;
 
     //UI component
-    [SerializeField] GameObject noteManager;
+    [SerializeField] private GameObject noteManager;
     private NoteManagerScript managerScript;
+
+    private Spell spell;
 
     private BarScript barScript;
     void Start()
     {
         animator = GetComponent<Animator>();
         managerScript = noteManager.GetComponent<NoteManagerScript>();
+        spell = GetComponent<Spell>();
     }
 
     //Combat component
@@ -36,11 +39,7 @@ public class PlayerScript : MonoBehaviour
         actions();
         animate();
 
-        //if (attackingState)
-        //{
 
-        //    Destroy(note);
-        //}
     }
     void manageUI()
     {
@@ -50,7 +49,8 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             //Pass a pattern of notes?
-            managerScript.createImages();
+            spell.generateSpell("FireBall");
+            managerScript.createImages(spell.getPatternValues());
             attackingState = true;
         }
 
@@ -63,7 +63,7 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-        
+
     }
 
     void animate()

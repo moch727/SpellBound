@@ -15,7 +15,7 @@ public class NoteManagerScript : MonoBehaviour
     [SerializeField] GameObject bar;
 
     private int[,] plane = new int[3,3]; //plane to use for the notes
-    private List<NoteScript> noteList = new List<NoteScript>(); //List of scripts for every note
+    private List<NoteScript> noteList = new List<NoteScript>(3); //List of scripts for every note
     private int currentNote = 0;
 
     private bool playing = false;
@@ -31,23 +31,39 @@ void Start()
 
     }
 
-    public void createImages()
+    public void createImages(int[,] notePattern)
     {
         bar = Instantiate(bar, transform);
         bar.SetActive(true);
 
-        for(int i = 0; i < plane.GetLength(0); i++) //read a json/csv file and reproduce the pattern in the future, using excel spreadsheets
+        //for(int i = 0; i < plane.GetLength(0); i++) //Randomization of notes
+        //{
+        //    int rowToAdd = RandomNumberGenerator.GetInt32(plane.GetLength(1));
+
+        //    GameObject newNote = Instantiate(note, transform);
+        //    newNote.SetActive(true);
+        //    newNote.transform.Translate(new Vector2(i * 50, -50 * rowToAdd)); //(0,0) is top left
+        //    newNote.GetComponent<NoteScript>().setColor(rowToAdd);
+
+        //    noteList.Add(newNote.GetComponent<NoteScript>());
+        //}
+        plane = notePattern;
+
+        for(int i = 0; i < plane.GetLength(1); i++)
         {
-            int rowToAdd = RandomNumberGenerator.GetInt32(plane.GetLength(1));
-            GameObject newNote = Instantiate(note, transform);
-            newNote.SetActive(true);
+            for(int j = 0; j < plane.GetLength(0); j++)
+            {
+                if (plane[j, i] == 1)
+                {
+                    GameObject newNote = Instantiate(note, transform);
+                    newNote.SetActive(true);
+                    newNote.transform.Translate(new Vector2(i * 50, -50 * j)); //(0,0) is top left
+                    newNote.GetComponent<NoteScript>().setColor(j);
 
-            newNote.transform.Translate(new Vector2(i * 50, -50 * rowToAdd)); //(0,0) is top left
-            newNote.GetComponent<NoteScript>().setColor(rowToAdd);
 
-
-            noteList.Add(newNote.GetComponent<NoteScript>());
-
+                    noteList.Add(newNote.GetComponent<NoteScript>());
+                }
+            }
         }
     }
 
