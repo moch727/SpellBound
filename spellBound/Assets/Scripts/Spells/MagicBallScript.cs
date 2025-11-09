@@ -11,7 +11,6 @@ public class MagicBallScript : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        ownerPosition = GameObject.Find("Player").transform.position;
     }
 
     // Update is called once per frame
@@ -31,16 +30,5 @@ public class MagicBallScript : MonoBehaviour
         rb.AddForce(Vector3.forward * force);
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Destructable")
-        {
-            collision.gameObject.GetComponent<InteractableObject>().setOnFire();
-            Destroy(gameObject);
-        }
-        else if(collision.gameObject.tag == "Enemy")
-        {
 
-        }
-    }
 }

@@ -11,30 +11,20 @@ public class NoteManagerScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
 
-    [SerializeField] GameObject note;
-    [SerializeField] GameObject bar;
+    [SerializeField] private GameObject note;
+    [SerializeField] private GameObject bar;
+
+    private GameObject noteBar;
 
     private int[,] plane = new int[3,3]; //plane to use for the notes
     private List<NoteScript> noteList = new List<NoteScript>(3); //List of scripts for every note
     private int currentNote = 0;
 
     private bool playing = false;
-
-void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void createImages(int[,] notePattern)
     {
-        bar = Instantiate(bar, transform);
-        bar.SetActive(true);
+        noteBar = Instantiate(bar, transform);
+        noteBar.SetActive(true);
 
         //for(int i = 0; i < plane.GetLength(0); i++) //Randomization of notes
         //{
@@ -73,11 +63,9 @@ void Start()
     }
     public bool noteKeyPressed()
     {
-        Debug.Log(currentNote);
-
         if (!playing)
         {
-            bar.GetComponent<BarScript>().setDetection(true);
+            noteBar.GetComponent<BarScript>().setDetection(true);
 
             noteList[currentNote].gameObject.SetActive(false);
 
@@ -87,22 +75,22 @@ void Start()
         }
         else
         {
-            if (bar.GetComponent<BarScript>().checkInputTiming(noteList[currentNote].gameObject.transform.position))
+            if (noteBar.GetComponent<BarScript>().checkInputTiming(noteList[currentNote].gameObject.transform.position))
             {
                 noteList[currentNote].gameObject.SetActive(false);
                 currentNote++;
                 if (currentNote >= noteList.Count) //all notes have been pressed, return true to initiate attack
                 {
-                    bar.SetActive(false);
+                    noteBar.SetActive(false);
                     return true;
                 }
                 return false;
             }
             else
             {
-                bar.GetComponent<BarScript>().setDetection(false); //reset bar
-                bar.transform.position = this.transform.position;
-                bar.transform.Translate(new Vector3(-50, 0, 0));
+                noteBar.GetComponent<BarScript>().setDetection(false); //reset bar
+                noteBar.transform.position = this.transform.position;
+                noteBar.transform.Translate(new Vector3(-50, 0, 0));
 
 
                 foreach (var note in noteList)
@@ -117,4 +105,10 @@ void Start()
             }
         }
     }
+
+    public void clearNotes()
+    {
+        Destroy(noteBar);
+    }
+
 }

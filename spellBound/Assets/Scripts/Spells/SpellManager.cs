@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal.Internal;
 using System;
 
-public class Spell : MonoBehaviour
+public class SpellManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -16,10 +16,6 @@ public class Spell : MonoBehaviour
     private int patternStartIndex;
     private bool spellFound = false;
 
-    private string spellName;
-
-    private float effectPercent;
-    private float damage;
 
     private int[,] pattern = new int[3,3];
     public int[,] getPatternValues()
@@ -27,8 +23,10 @@ public class Spell : MonoBehaviour
         return pattern;
     }
 
-    public void generateSpell(String spellName)
+    public SpellScript generateSpell(String spellName)
     {
+        SpellScript spell = null;
+
         spellFound = false;
         if (data == null)
         {
@@ -40,7 +38,6 @@ public class Spell : MonoBehaviour
         {
             if (data[i].Equals(spellName))
             {
-                spellName = data[i];
                 patternStartIndex = i + numOfColumns;
                 spellFound = true;
                 break;
@@ -57,7 +54,13 @@ public class Spell : MonoBehaviour
 
                 this.pattern[y, x] = int.Parse(data[j]);
             }
+
+            spell = new SpellScript();
+            spell.Instantiate(data[i], 0, 0, pattern); //initialize variables
         }
+
+        return spell;
+
     }
 
     private void readCSVFile()
