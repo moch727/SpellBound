@@ -21,6 +21,7 @@ public class NoteManagerScript : MonoBehaviour
     private int currentNote = 0;
 
     private bool playing = false;
+    private bool completed = false;
     public void createImages(int[,] notePattern)
     {
         noteBar = Instantiate(bar, transform);
@@ -61,7 +62,11 @@ public class NoteManagerScript : MonoBehaviour
     {
         return noteList[currentNote].getKey();
     }
-    public bool noteKeyPressed()
+    public bool getCompleted()
+    {
+        return completed;
+    }
+    public void noteKeyPressed()
     {
         if (!playing)
         {
@@ -71,7 +76,6 @@ public class NoteManagerScript : MonoBehaviour
 
             currentNote++;
             playing = true;
-            return false;
         }
         else
         {
@@ -82,9 +86,8 @@ public class NoteManagerScript : MonoBehaviour
                 if (currentNote >= noteList.Count) //all notes have been pressed, return true to initiate attack
                 {
                     noteBar.SetActive(false);
-                    return true;
+                    completed = true;
                 }
-                return false;
             }
             else
             {
@@ -100,8 +103,6 @@ public class NoteManagerScript : MonoBehaviour
 
                 currentNote = 0;
                 playing = false;
-
-                return false;
             }
         }
     }

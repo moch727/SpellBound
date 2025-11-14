@@ -32,7 +32,7 @@ public class PlayerScript : MonoBehaviour
     //Combat component
     public GameObject magicBall;
     private GameObject newBall;
-    void FixedUpdate()
+    void Update()
     {
         manageUI();
         actions();
@@ -59,7 +59,8 @@ public class PlayerScript : MonoBehaviour
 
         if (combat.getIsAttacking() && Input.GetKeyDown(noteUIManager.getKey()))
         {
-            if (noteUIManager.noteKeyPressed())
+            noteUIManager.noteKeyPressed();
+            if (noteUIManager.getCompleted())
             {
                 //animator.SetTrigger("Attack");
                 combat.setIsAttacking(false);

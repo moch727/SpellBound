@@ -6,9 +6,8 @@ using UnityEngine.InputSystem.Controls;
 public class BarScript : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] float moveSpeed = 5f;
-
-    [SerializeField] float validDistance = 10f; //Distance allowed for success
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float validDistance = 10f; //Distance allowed for success
 
     private bool timed = true;
     private bool startDetection = false;
@@ -32,14 +31,13 @@ public class BarScript : MonoBehaviour
     }
     public bool checkInputTiming(Vector3 targetNote)
     {
+        Debug.Log("Triggered");
         if (Mathf.Abs(transform.position.x - targetNote.x) < validDistance) //Distance is lower than valid, register as timed
         {
-            Debug.Log("Good");
             return true;
         }
         else
         {
-            Debug.Log("MisTimed");
             return false;
         }
     }

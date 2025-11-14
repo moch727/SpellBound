@@ -11,12 +11,13 @@ public class PlayerLocomotionComponent : MonoBehaviour
 
     private Vector2 horizontalMovementInput;
 
-    [SerializeField] private float velocity = 7f;
+    [SerializeField] private float velocity = 2f;
     [SerializeField] private float acceleration = 5f;
 
-    [SerializeField] private const float SHAKERATE = 1f;
+    [SerializeField] private const float SHAKERATE = 0.5f;
+    [SerializeField] private const float SHAKEMAGNITUDE = 10f;
     private float shakeRate = SHAKERATE;
-    [SerializeField] private float shakeMagnitude = 40f;
+    [SerializeField] private float shakeMagnitude = 10f;
     private bool touchingGround = true;
 
     //private float sprintValue;
@@ -47,27 +48,28 @@ public class PlayerLocomotionComponent : MonoBehaviour
     {
         if (horizontalMovementInput.magnitude > 0.1f)
         {
-            Vector3 targetVelocity = new Vector3(horizontalMovementInput.x * velocity, 0, horizontalMovementInput.y * velocity);
-            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, acceleration * Time.deltaTime);
 
-            if (touchingGround)
+            if (touchingGround) //screen shake effect
             {
                 shakeRate -= Time.fixedDeltaTime;
                 if (shakeRate < 0)
                 {
-                    rb.AddForce(Vector3.up * shakeMagnitude);
+                    shakeMagnitude = SHAKEMAGNITUDE;
                     shakeRate = SHAKERATE;
                 }
             }
             else
             {
                 shakeRate = SHAKERATE;
-                rb.GetAccumulatedForce().Set(0, 0, 0);
+                shakeMagnitude = 0;
             }
 
+            Vector3 targetVelocity = new Vector3(horizontalMovementInput.x * velocity, shakeMagnitude, horizontalMovementInput.y * velocity);
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, acceleration * Time.deltaTime);
         }
         else
         {
+            shakeRate = SHAKERATE;
             Vector3 startingVelocity = rb.linearVelocity;
             rb.linearVelocity = Vector3.Lerp(startingVelocity, Vector3.zero, acceleration * Time.deltaTime);
         }
