@@ -25,7 +25,7 @@ public class PlayerScript : MonoBehaviour
         combat = GetComponent<PlayerCombatComponent>();
         locomotionComponent = GetComponent<PlayerLocomotionComponent>();
 
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
     }
     private String spellName = "FireBall";
 
@@ -36,7 +36,7 @@ public class PlayerScript : MonoBehaviour
     {
         manageUI();
         actions();
-        animate();
+        //animate();
 
 
     }
@@ -61,7 +61,7 @@ public class PlayerScript : MonoBehaviour
         {
             if (noteUIManager.noteKeyPressed())
             {
-                animator.SetTrigger("Attack");
+                //animator.SetTrigger("Attack");
                 combat.setIsAttacking(false);
                 Destroy(noteUI);
             }
