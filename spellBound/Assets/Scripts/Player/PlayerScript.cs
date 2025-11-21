@@ -46,7 +46,7 @@ public class PlayerScript : MonoBehaviour
     }
     void actions()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) && noteUI == null)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && noteUI == null && !combat.getSpellActive()) //allow only one spell casted at a time, fix later
         {
             noteUI = Instantiate(noteManager, playerUI.transform);
             noteUIManager = noteUI.GetComponent<NoteManagerScript>();
@@ -63,8 +63,10 @@ public class PlayerScript : MonoBehaviour
             if (noteUIManager.getCompleted())
             {
                 //animator.SetTrigger("Attack");
-                combat.setIsAttacking(false);
+                combat.attack();
                 Destroy(noteUI);
+                combat.setIsAttacking(false);
+
             }
         }
 
@@ -79,15 +81,15 @@ public class PlayerScript : MonoBehaviour
         animator.SetFloat("SprintValue", Input.GetAxis("Sprint"));
     }
 
-    public void SpawnFireball()
-    {
-        Transform pivot = GameObject.Find("MagicPivot").transform;
+    //public void SpawnFireball()
+    //{
+    //    Transform pivot = GameObject.Find("MagicPivot").transform;
         
-        newBall = Instantiate(magicBall, pivot.transform.position, Quaternion.identity, pivot);
-    }
+    //    newBall = Instantiate(magicBall, pivot.transform.position, Quaternion.identity, pivot);
+    //}
 
-    public void Fire()
-    {
-        newBall.GetComponent<SpellScript>().castSpell(gameObject, 10);
-    }
+    //public void Fire()
+    //{
+    //    newBall.GetComponent<SpellScript>().castSpell(gameObject, 10);
+    //}
 }

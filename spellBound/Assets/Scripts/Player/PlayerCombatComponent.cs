@@ -10,6 +10,8 @@ public class PlayerCombatComponent : MonoBehaviour
     private SpellScript currentSpell;
     private GameObject spellObject;
 
+    private bool spellActive = false;
+
     private bool isAttacking = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -18,7 +20,23 @@ public class PlayerCombatComponent : MonoBehaviour
         playerScript = GetComponent<PlayerScript>();
         spellManager = GetComponent<SpellManager>();
     }
-    
+
+    private void Update()
+    {
+        if (spellObject != null && !spellActive)
+        {
+            spellObject.GetComponent<SpellScript>().castSpell(transform.gameObject, 10);
+            spellActive = true;
+        }
+    }
+    public bool getSpellActive()
+    {
+        return spellActive;
+    }
+    public void setSpellActive(bool spellActive)
+    {
+        this.spellActive = spellActive;
+    }
     public bool getIsAttacking()
     {
         return isAttacking;
@@ -35,5 +53,13 @@ public class PlayerCombatComponent : MonoBehaviour
     public SpellScript getCurrentSpell()
     {
         return currentSpell;
+    }
+
+    public void attack()
+    {
+        Transform pivot = GameObject.Find("MagicPivot").transform;
+        spellObject = SpellScript.Instantiate(FireBall, pivot.transform.position, Quaternion.identity, pivot);
+
+
     }
 }

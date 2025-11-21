@@ -10,9 +10,9 @@ public class SpellScript : MonoBehaviour
 
     private int[,] patternValues;
 
-    private SpellLocomotionScript locomotion;
+    public SpellLocomotionScript locomotion;
 
-    private void Start()
+    void Start()
     {
         locomotion = GetComponent<SpellLocomotionScript>();
     }
