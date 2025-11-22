@@ -10,19 +10,18 @@ public class SpellLocomotionScript : MonoBehaviour
     private Vector3 initialDestination; //for if object needs to move somewhere before tracking i.e. going up and then falling down
     private Vector3 targetLocation;
 
-    private float velocity = 5f;
+    [SerializeField] private float velocity = 5f;
+    [SerializeField] private GameObject target;
+    [SerializeField] private float maxRange;
     [SerializeField] private bool trackEnemy = false;
+
     //[SerializeField] private GameObject target;
     private GameObject owner;
-    private GameObject target;
 
-    private float maxRange;
-    private float trackingRange;
     private bool enableC = false;
     private Vector3 centripetalForce;
     void Start()
     {
-        transform.Rotate(new Vector3(0, 180, 0));
         rb = GetComponent<Rigidbody>();
     }
 
@@ -38,6 +37,24 @@ public class SpellLocomotionScript : MonoBehaviour
 
     private void FixedUpdate() //useful for physics calculations
     {
+        //Vector3 enemyDirection = new Vector3(target.transform.position.x - this.transform.position.x, 0, target.transform.position.z - this.transform.position.z);
+        //Debug.Log(transform.forward);
+        //if (Mathf.Abs(Vector3.Cross(enemyDirection, transform.forward).magnitude) < 0.1f)
+        //{
+        //    Debug.Log("a");
+        //}
+        if (transform.position.x < 0)
+        {
+            Debug.Log("a");
+            //rb.linearVelocity = Vector3.zero;
+            followEnemy();
+
+        }
+        else
+        {
+            circularMotion();
+        }
+        //circularMotion();
 
     }
 
@@ -47,7 +64,6 @@ public class SpellLocomotionScript : MonoBehaviour
         transform.parent = null;
         //rb.AddForce(Vector3.forward * 150);
         this.owner = owner;
-
         circularMotion();
 
     }
@@ -56,33 +72,49 @@ public class SpellLocomotionScript : MonoBehaviour
     {
         //initially fly towards throw direction
         //then track towards the enemy
-        target = owner;
+        //target = owner;
 
         if (!enableC)
         {
-            rb.AddRelativeForce(velocity * Vector3.forward, ForceMode.VelocityChange); //add an initial velocity
+            rb.AddForce(velocity * Vector3.forward, ForceMode.VelocityChange); //add an initial velocity
             enableC = true;
 
         } else { //cause circular motion, turns in direction its facing
 
-            Vector3 directionVector = new Vector3(target.transform.position.x - this.transform.position.x, 0, target.transform.position.z - this.transform.position.z);
+            Vector3 directionVector = new Vector3(owner.transform.position.x - this.transform.position.x, 0, owner.transform.position.z - this.transform.position.z);
             centripetalForce = (velocity * velocity / directionVector.magnitude) * directionVector.normalized;
             rb.AddForce(centripetalForce);
         }
-
-
     }
 
+
+    private void followEnemy()
+    {
+        if (trackEnemy)
+        {
+            if(maxRange > Vector3.Distance(transform.position,owner.transform.position))
+            {
+                transform.LookAt(target.transform.position);
+                rb.AddForce(transform.forward * Mathf.Abs(velocity));
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
+        
         if (collision.gameObject.tag == "Destructable")
         {
             collision.gameObject.GetComponent<InteractableObject>().setOnFire();
             Destroy(gameObject);
         }
-        else if (collision.gameObject.tag == "Enemy")
+        else if (collision.gameObject.CompareTag("Enemy"))
         {
-
+            Destroy(gameObject);
         }
     }
 }

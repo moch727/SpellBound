@@ -150,7 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f61ced781eb4dc4cbb75ec0d75078f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackEnemy: 0
+  velocity: -1
+  target: {fileID: 3863762119116710857, guid: e22398844246fc54784c4c812f5101b2, type: 3}
+  maxRange: 10
+  trackEnemy: 1
 --- !u!114 &129757103463383890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,3 +166,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d6ffce35164f22458269a444d688c42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  locomotion: {fileID: 0}

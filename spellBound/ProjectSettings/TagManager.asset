@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Destructable
   - Terrain
+  - Target
   layers:
   - Default
   - TransparentFX
