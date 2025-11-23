@@ -10,13 +10,14 @@ public class SpellLocomotionScript : MonoBehaviour
     private Vector3 initialDestination; //for if object needs to move somewhere before tracking i.e. going up and then falling down
     private Vector3 targetLocation;
 
-    [SerializeField] private float velocity = 5f;
+    [SerializeField] private float velocity;
     [SerializeField] private GameObject target;
     [SerializeField] private float maxRange;
     [SerializeField] private bool trackEnemy = false;
 
     //[SerializeField] private GameObject target;
     private GameObject owner;
+    private bool startTracking = false;
 
     private bool enableC = false;
     private Vector3 centripetalForce;
@@ -43,9 +44,8 @@ public class SpellLocomotionScript : MonoBehaviour
         //{
         //    Debug.Log("a");
         //}
-        if (transform.position.x < 0)
+        if (startTracking)
         {
-            Debug.Log("a");
             //rb.linearVelocity = Vector3.zero;
             followEnemy();
 
@@ -81,9 +81,16 @@ public class SpellLocomotionScript : MonoBehaviour
 
         } else { //cause circular motion, turns in direction its facing
 
-            Vector3 directionVector = new Vector3(owner.transform.position.x - this.transform.position.x, 0, owner.transform.position.z - this.transform.position.z);
-            centripetalForce = (velocity * velocity / directionVector.magnitude) * directionVector.normalized;
-            rb.AddForce(centripetalForce);
+            if(Vector3.Angle(target.transform.position - gameObject.transform.position, target.transform.position - owner.transform.position) < 5f)
+            {
+                startTracking = true;
+            }
+            else
+            {
+                Vector3 directionVector = new Vector3(owner.transform.position.x - this.transform.position.x, 0, owner.transform.position.z - this.transform.position.z);
+                centripetalForce = (velocity * velocity / directionVector.magnitude) * directionVector.normalized;
+                rb.AddForce(centripetalForce);
+            }
         }
     }
 
@@ -92,10 +99,11 @@ public class SpellLocomotionScript : MonoBehaviour
     {
         if (trackEnemy)
         {
+
             if(maxRange > Vector3.Distance(transform.position,owner.transform.position))
             {
                 transform.LookAt(target.transform.position);
-                rb.AddForce(transform.forward * Mathf.Abs(velocity));
+                rb.AddRelativeForce(transform.forward * Mathf.Abs(velocity));
             }
             else
             {

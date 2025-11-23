@@ -23,10 +23,18 @@ public class PlayerCombatComponent : MonoBehaviour
 
     private void Update()
     {
-        if (spellObject != null && !spellActive)
+        if (spellObject != null)
         {
-            spellObject.GetComponent<SpellScript>().castSpell(transform.gameObject, 10);
-            spellActive = true;
+            if (!spellActive)
+            {
+                spellObject.GetComponent<SpellScript>().castSpell(transform.gameObject, 10);
+                spellActive = true;
+            }
+
+        }
+        else
+        {
+            spellActive = false;
         }
     }
     public bool getSpellActive()
