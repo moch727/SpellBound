@@ -22,8 +22,11 @@ public class SpellLocomotionScript : MonoBehaviour
     private bool enableC = false;
     private Vector3 centripetalForce;
     void Start()
-    {
+    { 
         rb = GetComponent<Rigidbody>();
+        //rb.useGravity = false;
+
+        //1.53, 0, 0.4 position
     }
 
     // Update is called once per frame
@@ -44,17 +47,21 @@ public class SpellLocomotionScript : MonoBehaviour
         //{
         //    Debug.Log("a");
         //}
-        if (startTracking)
-        {
-            //rb.linearVelocity = Vector3.zero;
-            followEnemy();
+        //if (startTracking)
+        //{
+        //    //rb.linearVelocity = Vector3.zero;
+        //    followEnemy();
 
-        }
-        else
-        {
-            circularMotion();
-        }
+        //}
+        //else
+        //{
+        //    circularMotion();
+        //}
         //circularMotion();
+        if (maxRange < Vector3.Distance(transform.position, owner.transform.position))
+        {
+            Destroy(gameObject);
+        }
 
     }
 
@@ -64,10 +71,19 @@ public class SpellLocomotionScript : MonoBehaviour
         transform.parent = null;
         //rb.AddForce(Vector3.forward * 150);
         this.owner = owner;
-        circularMotion();
+        parabolaMotion(owner.GetComponentInChildren<PlayerCameraScript>().transform.forward);
+        //circularMotion();
 
     }
 
+    private void parabolaMotion(Vector3 aimRotation)
+    {
+        //Velocity, or the force magnitude
+        rb.AddForce(aimRotation * velocity, ForceMode.Impulse);
+        rb.useGravity = true;
+
+
+    }
     private void circularMotion()
     {
         //initially fly towards throw direction
@@ -93,8 +109,6 @@ public class SpellLocomotionScript : MonoBehaviour
             }
         }
     }
-
-
     private void followEnemy()
     {
         if (trackEnemy)

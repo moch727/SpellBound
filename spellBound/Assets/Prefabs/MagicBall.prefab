@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f61ced781eb4dc4cbb75ec0d75078f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velocity: 1
+  velocity: 5
   target: {fileID: 3863762119116710857, guid: e22398844246fc54784c4c812f5101b2, type: 3}
   maxRange: 10
   trackEnemy: 1
