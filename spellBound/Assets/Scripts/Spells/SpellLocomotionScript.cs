@@ -3,140 +3,92 @@ using UnityEngine.AI;
 
 public class SpellLocomotionScript : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-
     private Rigidbody rb;
+    private SpellScript spellScript;
 
     private Vector3 initialDestination; //for if object needs to move somewhere before tracking i.e. going up and then falling down
-    private Vector3 targetLocation;
 
-    [SerializeField] private float velocity;
-    [SerializeField] private GameObject target;
-    [SerializeField] private float maxRange;
-    [SerializeField] private bool trackEnemy = false;
 
-    //[SerializeField] private GameObject target;
-    private GameObject owner;
-    private bool startTracking = false;
+    [SerializeField] GameObject target;
 
-    private bool enableC = false;
-    private Vector3 centripetalForce;
-    void Start()
+    public float velocity;
+    public float maxRange;
+    [SerializeField] bool trackEnemy = false;
+    [SerializeField] bool useGravity = false;
+
+    [SerializeField] float steer;
+
+    [HideInInspector]
+    public GameObject owner;
+    public bool complete;
+
+    void Awake()
     { 
         rb = GetComponent<Rigidbody>();
-        //rb.useGravity = false;
-
+        spellScript = GetComponent<SpellScript>();
+        rb.useGravity = useGravity;
         //1.53, 0, 0.4 position
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //if (owner != null && Vector3.Distance(transform.position, owner.transform.position) > maxRange)
-        //{
-        //    owner.GetComponent<PlayerCombatComponent>().setSpellActive(false);
-        //    Destroy(gameObject);
-        //}
     }
 
     private void FixedUpdate() //useful for physics calculations
     {
-        //Vector3 enemyDirection = new Vector3(target.transform.position.x - this.transform.position.x, 0, target.transform.position.z - this.transform.position.z);
-        //Debug.Log(transform.forward);
-        //if (Mathf.Abs(Vector3.Cross(enemyDirection, transform.forward).magnitude) < 0.1f)
-        //{
-        //    Debug.Log("a");
-        //}
-        //if (startTracking)
-        //{
-        //    //rb.linearVelocity = Vector3.zero;
-        //    followEnemy();
+        if (trackEnemy && target != null)
+        {
 
-        //}
-        //else
-        //{
-        //    circularMotion();
-        //}
-        //circularMotion();
+            Quaternion direction = Quaternion.LookRotation((target.transform.position - transform.position).normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, direction, steer);
+            rb.AddForce(transform.forward * Time.deltaTime * velocity / Mathf.Sqrt(2), ForceMode.Impulse);
+
+        }
+
         if (maxRange < Vector3.Distance(transform.position, owner.transform.position))
         {
-            Destroy(gameObject);
+            complete = true;
+            switch (spellScript.spellType)
+            {
+
+                case SpellScript.SpellType.Construct:
+                    rb.linearVelocity = Vector3.zero;
+                    GetComponent<DiscoConstruct>().enabled = true;
+                    break;
+
+                default:
+                    Destroy(gameObject);
+                    break;
+            }
         }
 
     }
 
-    public void cast(GameObject owner, float maxRange)
+    public void startMotion(GameObject owner)
     {
-        this.maxRange = maxRange;
-        transform.parent = null;
-        //rb.AddForce(Vector3.forward * 150);
         this.owner = owner;
-        parabolaMotion(owner.GetComponentInChildren<PlayerCameraScript>().transform.forward);
-        //circularMotion();
 
-    }
+        switch (spellScript.spellType) {
 
-    private void parabolaMotion(Vector3 aimRotation)
-    {
-        //Velocity, or the force magnitude
-        rb.AddForce(aimRotation * velocity, ForceMode.Impulse);
-        rb.useGravity = true;
+            case SpellScript.SpellType.Construct:
+                Vector3 direction = Quaternion.Euler(-10, 0, 0) * Vector3.forward;
+                rb.AddForce(direction * velocity, ForceMode.Impulse);
+                break;
 
-
-    }
-    private void circularMotion()
-    {
-        //initially fly towards throw direction
-        //then track towards the enemy
-        //target = owner;
-
-        if (!enableC)
-        {
-            rb.AddForce(velocity * Vector3.forward, ForceMode.VelocityChange); //add an initial velocity
-            enableC = true;
-
-        } else { //cause circular motion, turns in direction its facing
-
-            if(Vector3.Angle(target.transform.position - gameObject.transform.position, target.transform.position - owner.transform.position) < 5f)
-            {
-                startTracking = true;
-            }
-            else
-            {
-                Vector3 directionVector = new Vector3(owner.transform.position.x - this.transform.position.x, 0, owner.transform.position.z - this.transform.position.z);
-                centripetalForce = (velocity * velocity / directionVector.magnitude) * directionVector.normalized;
-                rb.AddForce(centripetalForce);
-            }
+            default:
+                rb.AddForce(this.owner.transform.forward * velocity, ForceMode.Impulse); //Apply initial speed
+                break;
         }
-    }
-    private void followEnemy()
-    {
-        if (trackEnemy)
-        {
 
-            if(maxRange > Vector3.Distance(transform.position,owner.transform.position))
-            {
-                transform.LookAt(target.transform.position);
-                rb.AddRelativeForce(transform.forward * Mathf.Abs(velocity));
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-
-        }
+        transform.parent = null;
     }
-    private void OnCollisionEnter(Collision collision)
+
+    private void OnTriggerEnter(Collider other)
     {
         
-        if (collision.gameObject.tag == "Destructable")
+        if (other.gameObject.CompareTag("Enemy"))
         {
-            collision.gameObject.GetComponent<InteractableObject>().setOnFire();
-            Destroy(gameObject);
-        }
-        else if (collision.gameObject.CompareTag("Enemy"))
-        {
-            Destroy(gameObject);
+            if (trackEnemy)
+            {
+                rb.linearVelocity = Vector3.zero;
+                target = other.gameObject;
+            }
         }
     }
 }

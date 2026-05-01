@@ -2,17 +2,28 @@ using UnityEngine;
 
 public class SpellScript : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public enum SpellType
+    {
+        Projectile, 
+        Construct, //For spells that are created, then projectiles are fired from it
+    }
+
+    public GameObject owner;
+    public GameObject otherProjectiles;
+
     private string spellName;
+    public SpellType spellType;
 
     private float effectPercent;
     private float damage;
+    public int lightcost;
+    [SerializeField] GameObject lightPrefab;
 
     private int[,] patternValues;
 
-    public SpellLocomotionScript locomotion;
+    private SpellLocomotionScript locomotion;
 
-    void Start()
+    void Awake()
     {
         locomotion = GetComponent<SpellLocomotionScript>();
     }
@@ -24,12 +35,33 @@ public class SpellScript : MonoBehaviour
         this.patternValues = patternValues;
     }
 
-    public void castSpell(GameObject owner, float range)
+    public void shoot()
     {
-        locomotion.cast(owner, range);
+        locomotion.startMotion(owner);
     }
     public int[,] getPattern()
     {
         return patternValues;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+
+        if (collision.gameObject.CompareTag("Destructable"))
+        {
+            collision.gameObject.GetComponent<InteractableObject>().setOnFire();
+            Destroy(gameObject);
+        }
+        else if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("HIT");
+            Destroy(gameObject);
+        }
+        else
+        {
+            if (lightPrefab != null) GameObject.Instantiate(lightPrefab, transform.position, transform.rotation);
+            Destroy(gameObject);
+        }
+    }
+
 }

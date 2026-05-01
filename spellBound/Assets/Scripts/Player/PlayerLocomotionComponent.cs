@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerLocomotionComponent : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] GameObject cam;
     private PlayerScript playerScript;
     private Rigidbody rb;
 
@@ -13,14 +14,6 @@ public class PlayerLocomotionComponent : MonoBehaviour
 
     [SerializeField] private float velocity = 2f;
     [SerializeField] private float acceleration = 5f;
-
-    [SerializeField] private const float SHAKERATE = 0.5f;
-    [SerializeField] private const float SHAKEMAGNITUDE = 10f;
-    private float shakeRate = SHAKERATE;
-    [SerializeField] private float shakeMagnitude = 10f;
-    private bool touchingGround = true;
-
-    //private float sprintValue;
 
     void Start()
     {
@@ -36,6 +29,7 @@ public class PlayerLocomotionComponent : MonoBehaviour
         handleInput();
 
         calculateDisplacement();
+        rotate();
 
     }
 
@@ -48,48 +42,21 @@ public class PlayerLocomotionComponent : MonoBehaviour
     {
         if (horizontalMovementInput.magnitude > 0.1f)
         {
+            Vector3 targetVelocityX = transform.right * horizontalMovementInput.x * velocity;
+            Vector3 targetVelocityY = transform.forward * horizontalMovementInput.y * velocity;
 
-            if (touchingGround) //screen shake effect
-            {
-                shakeRate -= Time.fixedDeltaTime;
-                if (shakeRate < 0)
-                {
-                    shakeMagnitude = SHAKEMAGNITUDE;
-                    shakeRate = SHAKERATE;
-                }
-            }
-            else
-            {
-                shakeRate = SHAKERATE;
-                shakeMagnitude = 0;
-            }
-
-            Vector3 targetVelocity = new Vector3(horizontalMovementInput.x * velocity, shakeMagnitude, horizontalMovementInput.y * velocity);
-            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, acceleration * Time.deltaTime);
+            Vector3 total = targetVelocityX + targetVelocityY;
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, total, acceleration * Time.deltaTime);
         }
         else
         {
-            shakeRate = SHAKERATE;
             Vector3 startingVelocity = rb.linearVelocity;
             rb.linearVelocity = Vector3.Lerp(startingVelocity, Vector3.zero, acceleration * Time.deltaTime);
         }
     }
-    public Vector2 getHorizontalMovementInput()
+    
+    private void rotate()
     {
-        return horizontalMovementInput;
-    }
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Terrain"))
-        {
-            touchingGround = false;
-        }
-    }
-    public void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Terrain"))
-        {
-            touchingGround = true;
-        }
+        transform.eulerAngles = new Vector3(0, cam.transform.eulerAngles.y, 0);
     }
 }
