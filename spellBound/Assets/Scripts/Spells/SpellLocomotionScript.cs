@@ -15,11 +15,13 @@ public class SpellLocomotionScript : MonoBehaviour
     public float maxRange;
     [SerializeField] bool trackEnemy = false;
     [SerializeField] bool useGravity = false;
-
     [SerializeField] float steer;
+    private ParticleSystem particle;
+    private ParticleSystem.MainModule main;
+    public string pivot;
 
     [HideInInspector]
-    public GameObject owner;
+    public GameObject owner = null;
     public bool complete;
 
     void Awake()
@@ -27,6 +29,15 @@ public class SpellLocomotionScript : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         spellScript = GetComponent<SpellScript>();
         rb.useGravity = useGravity;
+        particle = GetComponent<ParticleSystem>();
+        main = particle.main;
+
+        particle.Stop();
+        main.duration = maxRange / velocity;
+        main.startLifetime = maxRange / velocity;
+        particle.Play();
+        //main.emitterVelocity = Vector3.zero;
+        //main.startSpeed = 0f;
         //1.53, 0, 0.4 position
     }
 
@@ -41,7 +52,7 @@ public class SpellLocomotionScript : MonoBehaviour
 
         }
 
-        if (maxRange < Vector3.Distance(transform.position, owner.transform.position))
+        if (owner != null && maxRange < Vector3.Distance(transform.position, owner.transform.position))
         {
             complete = true;
             switch (spellScript.spellType)
@@ -63,6 +74,9 @@ public class SpellLocomotionScript : MonoBehaviour
     public void startMotion(GameObject owner)
     {
         this.owner = owner;
+        if (owner.CompareTag("Player")) this.owner = owner.GetComponent<PlayerScript>().cam;
+
+        //main.startSpeed = velocity;
 
         switch (spellScript.spellType) {
 
@@ -77,6 +91,8 @@ public class SpellLocomotionScript : MonoBehaviour
         }
 
         transform.parent = null;
+        this.owner = owner;
+        //main.emitterVelocity = this.owner.transform.forward * velocity;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -89,6 +105,14 @@ public class SpellLocomotionScript : MonoBehaviour
                 rb.linearVelocity = Vector3.zero;
                 target = other.gameObject;
             }
+        }
+        else if (other.gameObject.CompareTag("Enhancer"))
+        {
+            maxRange = 50;
+            particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            main.duration = maxRange / velocity;
+            main.startLifetime = maxRange / velocity;
+            particle.Play();
         }
     }
 }

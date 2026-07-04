@@ -1,64 +1,88 @@
+using System.Collections;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GroundLight : MonoBehaviour
 {
-    [SerializeField] static int maxNumOfLights;
-    private static int numOfLights = 0; //Scales off of player lp amount?
-
     [SerializeField] int maxlightlvl;
     [SerializeField] float duration;
     [SerializeField] float fadeTime;
-    [SerializeField] float fadeSpeed;
+    public float fadeSpeed;
     private float timeElapsed;
-    private float fadePercent;
+    [HideInInspector]
+    public float fadePercent;
 
-    private Light light;
+    private Light attachedlight;
     private SphereCollider sCollider;
 
     public float radii;
-    private float lvlLength;
+
+    //[SerializeField] float LPINTERVAL;
+    public GameObject attached;
+
+    public bool playerEntered;
     void Awake()
     {
-        numOfLights++;
-        light = GetComponent<Light>();
+        attachedlight = GetComponent<Light>();
         sCollider = GetComponent<SphereCollider>();
 
-        radii = light.range;
-        sCollider.radius = radii;
+        radii = attachedlight.range;
 
-        lvlLength = radii / maxlightlvl; //Distance between each level 
-        fadeSpeed = light.intensity / duration;
+        //sCollider.radius = radii * 2 / 3;
+        sCollider.radius = 3.5f;
+
+        fadeSpeed = attachedlight.intensity / duration;
     }
 
     private void Update()
     {
+
+
         timeElapsed += Time.deltaTime;
         fadePercent = 1 -  timeElapsed / duration;
-        //Debug.Log(fadePercent);
         //if(timeElapsed >= duration)
         //{
-        light.intensity -= fadeSpeed * Time.deltaTime;
+        attachedlight.intensity -= fadeSpeed * Time.deltaTime;
+        if (sCollider.radius > 1)
+        {
+            sCollider.radius = fadePercent * 3.5f; //radii
+        }
+        attachedlight.range = fadePercent * 4.5f;
         //light.range = fadePercent * radii;
         //}
         //For sudden light fade out
 
-
-        if (light.intensity <= 0)
+        if (attachedlight.intensity < 0.1f)
         {
+            
+            //sCollider.enabled = false;
+        }
+
+        if (attachedlight.intensity <= 0)
+        {
+            sCollider.radius = 0f;
             Destroy(gameObject);
         }
-
     }
 
-    public int getlightLevel(float distance) 
+    private void OnCollisionEnter(Collision collision)
     {
-        if(fadePercent > 0.1f)
-        {
-            int lightlvl = maxlightlvl - Mathf.FloorToInt(distance / (lvlLength*fadePercent));
-            if (lightlvl < maxlightlvl) return lightlvl;
-            else return maxlightlvl;
-        }
-        return 0;
+        transform.up = collision.contacts[0].normal;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerEntered = true;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerEntered = false;
+        }
+    }
 }

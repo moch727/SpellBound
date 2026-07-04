@@ -3,17 +3,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerLocomotionComponent : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] GameObject cam;
     private PlayerScript playerScript;
     private Rigidbody rb;
 
     private PlayerInput playerInput;
 
-    private Vector2 horizontalMovementInput;
+    public Vector2 horizontalMovementInput;
 
-    [SerializeField] private float velocity = 2f;
-    [SerializeField] private float acceleration = 5f;
+    [SerializeField] private float velocity = 4f;
+    [SerializeField] private float acceleration = 7f;
+
+    [SerializeField] float maxSlopeAngle;
+    private RaycastHit hit;
+
+    public bool camRotation = true;
 
     void Start()
     {
@@ -24,12 +27,28 @@ public class PlayerLocomotionComponent : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        handleInput();
+        if (camRotation)
+        {
+            faceForward();
+            //rotate();
+        }
 
-        calculateDisplacement();
-        rotate();
+        //faceForward();
+        if (playerScript.currentAction == PlayerScript.Action.None) //!playerScript.inAction
+        {
+            handleInput();
+            calculateDisplacement();
+            if (OnSlope())
+            {
+                rb.linearVelocity = getSlopeDirection();
+            }
+            rb.useGravity = !OnSlope();
+        }
+
+        //faceForward();
+        //Debug.Log(rb.linearVelocity);
 
     }
 
@@ -40,8 +59,9 @@ public class PlayerLocomotionComponent : MonoBehaviour
 
     private void calculateDisplacement()
     {
-        if (horizontalMovementInput.magnitude > 0.1f)
+        if (horizontalMovementInput.magnitude > 0.1f) // && !playerScript.inAction
         {
+            faceForward();
             Vector3 targetVelocityX = transform.right * horizontalMovementInput.x * velocity;
             Vector3 targetVelocityY = transform.forward * horizontalMovementInput.y * velocity;
 
@@ -55,8 +75,35 @@ public class PlayerLocomotionComponent : MonoBehaviour
         }
     }
     
-    private void rotate()
+    public void faceForward()
     {
-        transform.eulerAngles = new Vector3(0, cam.transform.eulerAngles.y, 0);
+        transform.eulerAngles = new Vector3(0, playerScript.cam.transform.eulerAngles.y, 0);
+    }
+
+    public void Dodge()
+    {
+        float magnitude = 4f;
+        if (OnSlope()) rb.useGravity = true;
+        rb.AddForce(rb.linearVelocity.normalized * magnitude, ForceMode.Impulse);
+    }
+    public void rotate()
+    {
+        transform.Rotate(Vector3.right, -Input.GetAxis("Mouse Y"));
+        transform.Rotate(Vector3.up, Input.GetAxis("Mouse X"), Space.World); //space world prevents rotation in z axis
+    }
+
+    private bool OnSlope()
+    {
+        if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 2f))
+        {
+            float angle = Vector3.Angle(Vector3.up, hit.normal);
+            return angle != 0 && angle <= maxSlopeAngle;
+        }
+        return false;
+    }
+
+    private Vector3 getSlopeDirection()
+    {
+        return Vector3.ProjectOnPlane(rb.linearVelocity, hit.normal);
     }
 }

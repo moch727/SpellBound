@@ -1,124 +1,159 @@
 using UnityEditor.Animations;
 using UnityEngine.InputSystem;
 using UnityEngine;
-using System;
-using Unity.VisualScripting.Antlr3.Runtime.Collections;
 
 public class PlayerScript : MonoBehaviour
 {
-
-    private PlayerCombatComponent combat;
-    private PlayerLocomotionComponent locomotionComponent;
-
-    //Animator component
-    private Animator animator;
+    [HideInInspector]
+    public PlayerCombatComponent combat;
+    public PlayerLocomotionComponent locomotion;
+    private PlayerAnimator animator;
 
     //UI component
-    [SerializeField] private Canvas playerUI;
-    [SerializeField] private GameObject noteManager;
+    //[SerializeField] private Canvas playerUI;
+    //[SerializeField] private GameObject noteManager;
     public GameObject cam;
 
     private GameObject noteUI;
     private NoteManagerScript noteUIManager;
 
 
-    private GroundLight gl;
-    private float timeElapsed;
+    public GroundLight gl;
+    //[HideInInspector]
+    public bool inLight;
+
+    public Action currentAction = Action.None;
+    public enum Action
+    {
+        None, Attack, Dodge, Interact
+    }
+
+    //[HideInInspector]
+    public GameObject interactable;
     void Awake()
     {
+        Cursor.lockState = CursorLockMode.Locked;
         combat = GetComponent<PlayerCombatComponent>();
-        locomotionComponent = GetComponent<PlayerLocomotionComponent>();
+        locomotion = GetComponent<PlayerLocomotionComponent>();
+        animator = GetComponent<PlayerAnimator>();
 
-        playerUI.GetComponentInChildren<PointBar>().setMaxValue(combat.maxLP);
-        //animator = GetComponent<Animator>();
+        //playerUI.GetComponentInChildren<PointBar>().setMaxValue(combat.maxLP);
     }
     void Update()
     {
-        manageUI();
-        actions();
-        //animate();
-    }
-    void manageUI()
-    {
-        playerUI.GetComponentInChildren<PointBar>().setValue(combat.lp);
-        //noteManager.SetActive(attackingState);
-    }
-    void actions()
-    {
-        //if (Input.GetKeyDown(KeyCode.Mouse0) && noteUI == null && !combat.getSpellActive()) //allow only one spell casted at a time, fix later
-        //{
-        //    //noteUI = Instantiate(noteManager, playerUI.transform);
-        //    //noteUIManager = noteUI.GetComponent<NoteManagerScript>();
-
-        //    //combat.setIsAttacking(true);
-        //    //combat.createSpell(spellName);
-        //    //noteUIManager.createImages(combat.getCurrentSpell().getPattern());
-        //    combat.attack();
-        //    combat.setIsAttacking(false);
-
-        //}
-
-        //if (combat.getIsAttacking() && Input.GetKeyDown(noteUIManager.getKey()))
-        //{
-        //    noteUIManager.noteKeyPressed();
-        //    if (noteUIManager.getCompleted())
-        //    {
-        //        //animator.SetTrigger("Attack");
-        //        combat.attack();
-        //        Destroy(noteUI);
-        //        combat.setIsAttacking(false);
-
-        //    }
-        //}
-        //Disable note system
-        if (gl != null && getLightlvl() == 2)
+        bool entered = false;
+        for (int i = 0; i < combat.lights.Length; i++)
         {
-            timeElapsed += Time.deltaTime;
-            if(timeElapsed >= 1 && combat.lp < combat.maxLP)
+            if(combat.lights[i] != null && combat.lights[i].playerEntered)
             {
-                combat.lp += 1;
-                timeElapsed = 0f;
+                entered = true; break;
             }
         }
+        inLight = entered;
+        //manageUI();
+        //animate();
     }
+    //void manageUI()
+    //{
+    //    playerUI.GetComponentInChildren<PointBar>().setValue(combat.lp);
+    //    //noteManager.SetActive(attackingState);
+    //}
 
-    public int getLightlvl()
+    public void OnInteract()
     {
-        if (gl != null) return gl.getlightLevel(Vector3.Distance(gameObject.transform.position, gl.gameObject.transform.position));
-        return 0;
+        if (currentAction == Action.None && interactable != null)
+        {
+            handleInteraction(interactable);
+            //currentAction = Action.Interact;
+        }
     }
     public void OnAttack()
     {
-
-        if (!combat.getSpellActive())
+        //inAction = true;
+        if (currentAction == Action.None)
         {
-            combat.attack();
-            //combat.setIsAttacking(false);
+            GetComponent<Rigidbody>().linearVelocity = Vector3.zero; //freeze motion
+            animator.setToNeutral();
+            animator.animateAttack();
+            combat.cast();
+            currentAction = Action.Attack;
+        }
+    }
+    public void OnDodge(InputAction.CallbackContext context)
+    {
+        //inAction = true;
+        if (currentAction == Action.None && context.performed && GetComponent<Rigidbody>().linearVelocity.magnitude >= 0.5f) //If velocity is above negligible size
+        {
+            animator.animateDodge();
+            locomotion.Dodge();
+            currentAction = Action.Dodge;
+        }
+    }
+    public void OnAim(InputAction.CallbackContext context)
+    {
+        locomotion.faceForward();
+        animator.animateAim(context.started || context.performed);
+        locomotion.camRotation = (context.started || context.performed);
+    }
+
+    private void handleInteraction(GameObject o)
+    {
+        if(o.GetComponent<ItemScript>())
+        {
+            combat.addSpell(o.GetComponent<ItemScript>().collect());
+            
+        }
+        else if (o.GetComponent<BoxScript>())
+        {
+            transform.position = o.GetComponent<BoxScript>().point.transform.position;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(o.GetComponent<BoxScript>().point.transform.right), 360f);
+            locomotion.camRotation = false;
+
+            animator.setToNeutral();
+            animator.animateInteract("Open");
+            currentAction = Action.Interact;
+        }
+    }
+
+    public void enableInteractionForObject(string interaction)
+    {
+        if (interaction == "Box") interactable.GetComponent<BoxScript>().OpenBox();
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(currentAction != Action.Interact)
+        {
+            if (other.CompareTag("Projectile") && other.GetComponent<SpellScript>().owner != gameObject)
+            {
+                combat.reduceLP((int)other.GetComponent<SpellScript>().damage);
+            }
+            else if (other.CompareTag("DamageBox"))
+            {
+                combat.reduceLP((int)other.GetComponent<MeleeHitbox>().owner.damage);
+            }
         }
 
     }
-    public void animate()
+    private void OnTriggerStay(Collider other)
     {
-        animator.SetFloat("ZVelocity", Input.GetAxis("Vertical"));
-        animator.SetFloat("XVelocity", Input.GetAxis("Horizontal"));
-        animator.SetFloat("YRotation", Input.GetAxis("Mouse X"));
-        animator.SetFloat("SprintValue", Input.GetAxis("Sprint"));
-    }
+        //inLight = other != null && other.gameObject.CompareTag("LightSrc");
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("LightSrc"))
+        if (other.CompareTag("Interactable"))
         {
-            gl = other.gameObject.GetComponent<GroundLight>();
-            timeElapsed = 0;
+            interactable = other.gameObject;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.CompareTag("LightSrc"))
+        //if (other.gameObject.CompareTag("LightSrc"))
+        //{
+        //    inLight = false;
+        //}
+
+        if (other.CompareTag("Interactable"))
         {
-            gl = null;
+            interactable = null;
         }
     }
 }

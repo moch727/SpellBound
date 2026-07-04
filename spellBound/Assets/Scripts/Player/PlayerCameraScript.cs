@@ -12,7 +12,8 @@ public class PlayerCameraScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = new Vector3(player.position.x, player.position.y+1, player.position.z);
+        transform.position = player.position;
+        //transform.position = new Vector3(player.position.x, player.position.y+1, player.position.z);
         rotateCamera();
     }
 

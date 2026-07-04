@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SpellScript : MonoBehaviour
 {
@@ -6,30 +7,36 @@ public class SpellScript : MonoBehaviour
     {
         Projectile, 
         Construct, //For spells that are created, then projectiles are fired from it
+        LightDependant
     }
 
-    public GameObject owner;
-    public GameObject otherProjectiles;
+    public GameObject[] otherProjectiles;
+    public GameObject impactEffect;
 
-    private string spellName;
+    public string spellName;
     public SpellType spellType;
+    public Sprite spellIcon;
+    public int animID;
 
     private float effectPercent;
-    private float damage;
+    public float damage;
     public int lightcost;
     [SerializeField] GameObject lightPrefab;
+    private bool lightPlaced;
 
     private int[,] patternValues;
 
     private SpellLocomotionScript locomotion;
 
+    //[HideInInspector]
+    public GameObject owner;
+
     void Awake()
     {
         locomotion = GetComponent<SpellLocomotionScript>();
     }
-    public void Instantiate(string spellName, float damage, float effectPercent, int[,] patternValues)
+    public void Instantiate(float damage, float effectPercent, int[,] patternValues)
     {
-        this.spellName = spellName;
         this.damage = damage;
         this.effectPercent = effectPercent;
         this.patternValues = patternValues;
@@ -37,31 +44,40 @@ public class SpellScript : MonoBehaviour
 
     public void shoot()
     {
-        locomotion.startMotion(owner);
+        if(GetComponent<Collider>() != null) GetComponent<Collider>().enabled = true;
+        if (locomotion != null) locomotion.startMotion(owner);
+        else if (GetComponent<MudProjectileScript>() != null) GetComponent<MudProjectileScript>().startMotion();
     }
     public int[,] getPattern()
     {
         return patternValues;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
+        if (!other.isTrigger && (other.gameObject.CompareTag("Enemy") && owner.CompareTag("Player")) || (other.gameObject.CompareTag("Player") && owner.CompareTag("Enemy")))
+        {
+            if (impactEffect != null) GameObject.Instantiate(impactEffect, transform.position, transform.rotation);
+            if (spellType == SpellType.Projectile) Destroy(gameObject);
+        }
+        else if (!owner.CompareTag("Player") && other.GetComponent<ShieldScript>())
+        {
+            Destroy(gameObject);
+        }
+        else if (other.gameObject.CompareTag("Terrain"))
+        {
+            if (lightPrefab != null && !lightPlaced)
+            {
+                GameObject lightObject = GameObject.Instantiate(lightPrefab, transform.position, Quaternion.identity);
+                lightObject.GetComponent<GroundLight>().attached = other.gameObject;
+                owner.GetComponent<PlayerCombatComponent>().addLight(lightObject);
+                lightPlaced = true;
+            }
+            if (spellType == SpellType.Projectile) Destroy(gameObject);
 
-        if (collision.gameObject.CompareTag("Destructable"))
-        {
-            collision.gameObject.GetComponent<InteractableObject>().setOnFire();
-            Destroy(gameObject);
         }
-        else if (collision.gameObject.CompareTag("Enemy"))
-        {
-            Debug.Log("HIT");
-            Destroy(gameObject);
-        }
-        else
-        {
-            if (lightPrefab != null) GameObject.Instantiate(lightPrefab, transform.position, transform.rotation);
-            Destroy(gameObject);
-        }
+
+
     }
 
 }

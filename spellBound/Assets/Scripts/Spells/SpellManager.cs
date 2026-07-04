@@ -56,7 +56,7 @@ public class SpellManager : MonoBehaviour
             }
 
             spell = new SpellScript();
-            spell.Instantiate(data[i], 0, 0, pattern); //initialize variables
+            //spell.Instantiate(data[i], 0, 0, pattern); //initialize variables
         }
 
         return spell;

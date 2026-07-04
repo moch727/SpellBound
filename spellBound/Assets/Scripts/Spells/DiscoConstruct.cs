@@ -14,6 +14,7 @@ public class DiscoConstruct : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        this.enabled = false;
     }
     void Update()
     {

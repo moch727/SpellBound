@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class PointBar : MonoBehaviour
 {
-    public float value, maxValue, width, height;
+    public float maxValue, width, height;
 
     private Image image;
     private RectTransform rect;
@@ -21,12 +21,8 @@ public class PointBar : MonoBehaviour
 
     public void setValue(float currentValue)
     {
-        image.fillAmount = Mathf.MoveTowards(image.fillAmount,currentValue / maxValue, 2*Time.deltaTime);
-        //float newWidth = (currentValue/maxValue) * width;
-        //Debug.Log(width);
-        //if (newWidth != width) rect.sizeDelta = new Vector2(Mathf.MoveTowards(width, newWidth, 2f * Time.deltaTime), height);
-
-
+        //image.fillAmount = Mathf.MoveTowards(image.fillAmount,currentValue / maxValue, 2*Time.deltaTime);
+        rect.localScale = new Vector3(Mathf.MoveTowards(rect.localScale.x, currentValue / maxValue, 2 * Time.deltaTime),1,1);
     }
 
 }

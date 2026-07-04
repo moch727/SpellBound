@@ -4,19 +4,23 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Destructable
   - Terrain
-  - Target
   - Enemy
   - LightSrc
+  - Enhancer
+  - Projectile
+  - Mirror
+  - DamageBox
+  - Slope
+  - Interactable
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - LightLayer
   - Water
   - UI
-  - 
+  - Hitbox
   - 
   - 
   - 
