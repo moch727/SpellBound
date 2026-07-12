@@ -8,9 +8,6 @@ public class MudProjectileScript : MonoBehaviour
     [SerializeField] ParticleSystem ballEffect;
     [SerializeField] ParticleSystem flashEffect;
     [SerializeField] ParticleSystem splashEffect;
-
-    private bool collided = false;
-    private float time = 3f;
     void Awake()
     {
         script = GetComponent<SpellScript>();
@@ -18,35 +15,37 @@ public class MudProjectileScript : MonoBehaviour
     }
     public void startMotion()
     {
-        float velocity = 5f;
-        //float height = transform.position.y - script.owner.GetComponent<AIScript>().target.transform.position.y;
+        GameObject target = script.owner.GetComponent<AIScript>().target;
+
+        Vector3 targetPosition = new Vector3(target.transform.position.x, 0, target.transform.position.z);
+        Vector3 currentPosition = new Vector3(transform.position.x, 0, transform.position.z);
+
+        float travellTime = Mathf.Sqrt(2 * Mathf.Abs(target.transform .position.y - transform.position.y) / 9.8f); //kinematics formula
+        float velocity = Vector3.Distance(targetPosition, currentPosition) / travellTime;
+
         rb.linearVelocity = script.owner.transform.forward * velocity;
-        //rb.linearVelocity = (new Vector3(script.owner.GetComponent<AIScript>().target.transform.position.x - transform.position.x, 0, script.owner.GetComponent<AIScript>().target.transform.position.z - transform.position.z)).normalized * velocity;
-        //rb.AddForce(script.owner.transform.forward * velocity, ForceMode.Impulse);
         transform.parent = null;
         rb.useGravity = true;
     }
-    void Update()
-    {
-        //if(projectileEffect.time >= 0.7f && !collided) projectileEffect.Pause(true);
-    }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Terrain"))
+        if (collision.gameObject.CompareTag("Terrain") || collision.gameObject.CompareTag("Player"))
         {
             Destroy(ballEffect);
             flashEffect.gameObject.SetActive(true);
             GameObject.Instantiate(splashEffect, transform.position, Quaternion.identity);
-            Debug.Log("aaaaaa");
-            //collided = true;
-            //projectileEffect.Play();
-        }
-        else if (collision.gameObject.CompareTag("Terrain"))
-        {
-            //Destroy(ballEffect);
-            //flashEffect.gameObject.SetActive(true);
-            //GameObject.Instantiate(splashEffect, transform.position, Quaternion.identity);
-            //Debug.Log("aaaaaa");
+            GetComponent<Collider>().enabled = false;
         }
     }
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.gameObject.CompareTag("Terrain"))
+    //    {
+    //        Destroy(ballEffect);
+    //        flashEffect.gameObject.SetActive(true);
+    //        GameObject.Instantiate(splashEffect, transform.position, Quaternion.identity);
+    //        GetComponent<Collider>().enabled = false;
+    //    }
+    //}
 }

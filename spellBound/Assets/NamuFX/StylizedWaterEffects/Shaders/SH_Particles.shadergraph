@@ -2369,7 +2369,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -3518,8 +3518,8 @@
     "m_ObjectId": "29ede126813047ddbb22c80bb70b6e46",
     "m_Title": "Distortion",
     "m_Position": {
-        "x": -1415.0,
-        "y": -963.0000610351563
+        "x": -1415.2001953125,
+        "y": -964.0
     }
 }
 
@@ -3629,7 +3629,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -5800,8 +5800,8 @@
     "m_ObjectId": "565dc2ba97684f529ed113d6cb035b1c",
     "m_Title": "Dissolve",
     "m_Position": {
-        "x": 933.0,
-        "y": -169.99996948242188
+        "x": 502.39996337890627,
+        "y": -236.0
     }
 }
 
@@ -6237,8 +6237,8 @@
     "m_ObjectId": "650b296e506d49218695d2e619656e07",
     "m_Title": "Secondary Color",
     "m_Position": {
-        "x": 927.9661254882813,
-        "y": -2088.75
+        "x": 928.0000610351563,
+        "y": -2088.7998046875
     }
 }
 
@@ -6509,8 +6509,8 @@
     "m_ObjectId": "6fa6099d71fe46b883c738eb38d08b45",
     "m_Title": "Dissolve Sharpness",
     "m_Position": {
-        "x": 573.0,
-        "y": -470.0001220703125
+        "x": 572.7999877929688,
+        "y": -471.199951171875
     }
 }
 
@@ -6698,8 +6698,8 @@
     "m_ObjectId": "70cfbffab46d48e9852f7ef8c42cd216",
     "m_Title": "Dissolve Edge",
     "m_Position": {
-        "x": 1585.000244140625,
-        "y": -565.9998779296875
+        "x": 1584.7998046875,
+        "y": -567.199951171875
     }
 }
 
@@ -7395,8 +7395,8 @@
     "m_ObjectId": "8152903e983944758e5c763467c61365",
     "m_Title": "SoftParticles",
     "m_Position": {
-        "x": 567.0,
-        "y": 302.0
+        "x": 566.4002075195313,
+        "y": 300.7998046875
     }
 }
 
@@ -7599,10 +7599,10 @@
         "w": 1.0
     },
     "m_DefaultValue": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "w": 0.0
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0,
+        "w": 1.0
     },
     "m_Labels": []
 }
@@ -8190,7 +8190,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -8913,6 +8913,9 @@
     "m_AlphaClip": false,
     "m_CastShadows": false,
     "m_ReceiveShadows": true,
+    "m_DisableTint": false,
+    "m_AdditionalMotionVectorMode": 0,
+    "m_AlembicMotionVectors": false,
     "m_SupportsLODCrossFade": false,
     "m_CustomEditorGUI": "",
     "m_SupportVFX": false
@@ -9141,7 +9144,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -9589,6 +9592,7 @@
     "m_SGVersion": 2,
     "m_Type": "UnityEditor.Rendering.BuiltIn.ShaderGraph.BuiltInTarget",
     "m_ObjectId": "ac7262a85d934208b779ce0b6cf43691",
+    "m_Datas": [],
     "m_ActiveSubTarget": {
         "m_Id": "0e7c9063749f463bba914277c089514d"
     },
@@ -9810,7 +9814,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -9833,10 +9837,10 @@
         "w": 1.0
     },
     "m_DefaultValue": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "w": 0.0
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0,
+        "w": 1.0
     },
     "m_Labels": []
 }
@@ -10760,8 +10764,8 @@
     "m_ObjectId": "cd0f157220844cad99697343d1e92dca",
     "m_Title": "Alpha",
     "m_Position": {
-        "x": 1817.0001220703125,
-        "y": -140.00003051757813
+        "x": 1816.7998046875,
+        "y": -140.800048828125
     }
 }
 
@@ -11812,8 +11816,8 @@
     "m_ObjectId": "e4ac42164a02400392e2eeaa245d73e6",
     "m_Title": "Intensity",
     "m_Position": {
-        "x": 898.0000610351563,
-        "y": -1431.9998779296875
+        "x": 897.6000366210938,
+        "y": -1432.800048828125
     }
 }
 
@@ -11938,7 +11942,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 0
@@ -12119,8 +12123,8 @@
     "m_ObjectId": "ea4408970a2b46918f775951c39ac642",
     "m_Title": "MainColor",
     "m_Position": {
-        "x": 1266.0001220703125,
-        "y": -1392.0
+        "x": 1265.5999755859375,
+        "y": -1392.800048828125
     }
 }
 
@@ -12922,8 +12926,8 @@
     "m_ObjectId": "fffd1e1a60f942cabc6e4885a91f6715",
     "m_Title": "Outline",
     "m_Position": {
-        "x": 1562.0,
-        "y": -960.0
+        "x": 1496.0,
+        "y": -960.800048828125
     }
 }
 
