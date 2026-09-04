@@ -30,12 +30,24 @@ public class SpellLocomotionScript : MonoBehaviour
         spellScript = GetComponent<SpellScript>();
         rb.useGravity = useGravity;
         particle = GetComponent<ParticleSystem>();
-        main = particle.main;
+        if(particle != null)
+        {
+            main = particle.main;
 
-        particle.Stop();
-        main.duration = maxRange / velocity;
-        main.startLifetime = maxRange / velocity;
-        particle.Play();
+            particle.Stop();
+            main.duration = maxRange / velocity;
+            main.startLifetime = maxRange / velocity;
+            if(particle.GetComponentInChildren<ParticleSystem>() != null)
+            {
+                ParticleSystem child = particle.GetComponentInChildren<ParticleSystem>();
+                ParticleSystem.MainModule childMain = child.main;
+
+                childMain.duration = maxRange / velocity;
+                childMain.startLifetime = maxRange / velocity;
+            }
+            particle.Play();
+        }
+
         //main.emitterVelocity = Vector3.zero;
         //main.startSpeed = 0f;
         //1.53, 0, 0.4 position
@@ -60,7 +72,7 @@ public class SpellLocomotionScript : MonoBehaviour
 
                 case SpellScript.SpellType.Construct:
                     rb.linearVelocity = Vector3.zero;
-                    GetComponent<DiscoConstruct>().enabled = true;
+                    if(GetComponent<DiscoConstruct>() != null) GetComponent<DiscoConstruct>().enabled = true;
                     break;
 
                 default:

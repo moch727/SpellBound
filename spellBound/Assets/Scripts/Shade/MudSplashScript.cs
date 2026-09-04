@@ -3,11 +3,13 @@ using UnityEngine;
 public class MudSplashScript : MonoBehaviour
 {
     [SerializeField] float duration;
-    [SerializeField] float tickDamage;
     private float currentTime;
 
+    [SerializeField] float tickDamage;
+    [SerializeField] float tickSpeed;
+    private float tickCounter;
+
     private ParticleSystem m_splash;
-    [SerializeField] GameObject hitbox;
     void Start()
     {
         m_splash = GetComponent<ParticleSystem>();
@@ -24,7 +26,7 @@ public class MudSplashScript : MonoBehaviour
             else
             {
                 m_splash.Play();
-                hitbox.GetComponent<Collider>().enabled = false;
+                GetComponent<Collider>().enabled = false;
             }
 
         }
@@ -32,6 +34,19 @@ public class MudSplashScript : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        
+        if (other.CompareTag("Player"))
+        {
+            tickCounter += Time.deltaTime;
+            if (tickCounter >= tickSpeed)
+            {
+                other.GetComponent<PlayerCombatComponent>().reduceHealth((int) tickDamage);
+                tickCounter = 0f;
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player")) tickCounter = 0f;
     }
 }

@@ -55,12 +55,12 @@ public class SpellScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.isTrigger && (other.gameObject.CompareTag("Enemy") && owner.CompareTag("Player")) || (other.gameObject.CompareTag("Player") && owner.CompareTag("Enemy")))
+        if ((!other.isTrigger && (other.gameObject.CompareTag("Enemy") && owner.CompareTag("Player")) || (other.gameObject.CompareTag("Player") && owner.CompareTag("Enemy"))) || other.CompareTag("Interactable"))
         {
             if (impactEffect != null) GameObject.Instantiate(impactEffect, transform.position, transform.rotation);
             if (spellType == SpellType.Projectile) Destroy(gameObject);
         }
-        else if (!owner.CompareTag("Player") && other.GetComponent<ShieldScript>())
+        else if (!owner.CompareTag("Player") && other.GetComponent<ShieldScript>() != null)
         {
             Destroy(gameObject);
         }

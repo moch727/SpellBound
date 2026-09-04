@@ -2,30 +2,52 @@ using UnityEngine;
 
 public class DetectingLamp : MonoBehaviour
 {
-    private static int numOfLamps;
 
-    [SerializeField] int lampsToTrigger;
-    private static int lampsTriggered = 0;
+    [SerializeField] DetectingLamp[] lamps;
+
+    public bool triggered = false;
 
     public GateScript gate;
 
     [SerializeField] GameObject fireEffect;
+    private bool triggerEvent;
+    private float delay = 2f;
+    private float count;
 
     private void Awake()
     {
-        fireEffect.SetActive(false);
-        numOfLamps = lampsToTrigger;
+        if(fireEffect != null) fireEffect.SetActive(false);
+    }
+    private void Update()
+    {
+        if (triggerEvent)
+        {
+            count += Time.deltaTime;
+            if (count > delay)
+            {
+                gate.objectivesComplete = true;
+                triggerEvent = false;
+            }
+        }
     }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Projectile") && other.GetComponent<SpellScript>().owner.CompareTag("Player"))
         {
-            fireEffect.SetActive(true);
-            lampsTriggered++;
+            if(fireEffect != null) fireEffect.SetActive(true);
+            triggered = true;
 
-            Debug.Log(numOfLamps);
-            Debug.Log(lampsTriggered);
-            gate.objectivesComplete = (lampsTriggered >= numOfLamps);
+            bool complete = true;
+            for (int i = 0; i < lamps.Length; i++)
+            {
+                if (!lamps[i].triggered)
+                {
+                    complete = false;
+                    break;
+                }
+            }
+
+            triggerEvent = complete;
         }
     }
 }

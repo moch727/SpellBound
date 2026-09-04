@@ -22,6 +22,7 @@ public class PointBar : MonoBehaviour
     public void setValue(float currentValue)
     {
         //image.fillAmount = Mathf.MoveTowards(image.fillAmount,currentValue / maxValue, 2*Time.deltaTime);
+        if(currentValue < 0) currentValue = 0;
         rect.localScale = new Vector3(Mathf.MoveTowards(rect.localScale.x, currentValue / maxValue, 2 * Time.deltaTime),1,1);
     }
 

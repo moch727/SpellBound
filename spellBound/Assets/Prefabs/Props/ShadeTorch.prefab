@@ -152,6 +152,10 @@ PrefabInstance:
       value: 0.9543116
       objectReference: {fileID: 0}
     - target: {fileID: 3962803994641942022, guid: df6b776b0ce150b47890e2a0ef402b32, type: 3}
+      propertyPath: m_Lightmapping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962803994641942022, guid: df6b776b0ce150b47890e2a0ef402b32, type: 3}
       propertyPath: m_BoundingSphereOverride.w
       value: 0
       objectReference: {fileID: 0}

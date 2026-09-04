@@ -29,7 +29,7 @@ public class PlayerLocomotionComponent : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (camRotation)
+        if (camRotation) //camRotation
         {
             faceForward();
             //rotate();
@@ -88,8 +88,11 @@ public class PlayerLocomotionComponent : MonoBehaviour
     }
     public void rotate()
     {
-        transform.Rotate(Vector3.right, -Input.GetAxis("Mouse Y"));
-        transform.Rotate(Vector3.up, Input.GetAxis("Mouse X"), Space.World); //space world prevents rotation in z axis
+        if(playerScript.currentAction != PlayerScript.Action.Interact)
+        {
+            transform.Rotate(Vector3.right, -Input.GetAxis("Mouse Y"));
+            transform.Rotate(Vector3.up, Input.GetAxis("Mouse X"), Space.World); //space world prevents rotation in z axis
+        }
     }
 
     private bool OnSlope()

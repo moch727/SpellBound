@@ -63,5 +63,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         script.currentAction = PlayerScript.Action.None;
         script.locomotion.camRotation = true;
+
+        script.ResetCam();
     }
 }

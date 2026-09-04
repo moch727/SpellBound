@@ -1,4 +1,5 @@
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PlayerCombatComponent : MonoBehaviour
@@ -20,6 +21,8 @@ public class PlayerCombatComponent : MonoBehaviour
     public int maxHealth;
     public int maxLP;
 
+    private float atkMultiplier = 1;
+
 
     public GroundLight[] lights = new GroundLight[3];
     public int lightNums;
@@ -28,6 +31,18 @@ public class PlayerCombatComponent : MonoBehaviour
     //[HideInInspector]
     public int health;
     public int LP;
+
+    [Header("Stats")]
+    public float XP;
+    public float requiredXP;
+
+    public int level;
+    public int Vitality = 1; //stat for health
+    public int Clarity = 1;  //stat for lp
+    public int Potency = 1; //stat for attack power
+    public int Resistance = 1; //stat for defense
+
+    public int Persistence = 1; //stat for light duration
 
     void Awake()
     {
@@ -72,7 +87,7 @@ public class PlayerCombatComponent : MonoBehaviour
         return spells[index];
     }
     
-    public void reduceLP(int reduction)
+    public void reduceHealth(int reduction)
     {
         health -= reduction;
         if(health < 0) health = 0;
@@ -83,6 +98,8 @@ public class PlayerCombatComponent : MonoBehaviour
         {
             GameObject projectile;
             projectile = spells[index];
+
+            if (playerScript.environmentLight != null && projectile.CompareTag("Projectile"))  projectile = playerScript.environmentLight.replacedSpell;
             Transform pivot;
 
             switch (projectile.GetComponent<SpellScript>().spellType)
@@ -98,6 +115,7 @@ public class PlayerCombatComponent : MonoBehaviour
                             {
                                 spell = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation); //what if light is on wall?
                                 spell.GetComponent<SpellScript>().owner = gameObject;
+                                spell.GetComponent<SpellScript>().damage *= atkMultiplier;
                                 for (int j = 0; j < spell.GetComponent<SpellScript>().otherProjectiles.Length; j++)
                                 {
                                     spell.GetComponent<SpellScript>().otherProjectiles[j].GetComponent<SpellScript>().owner = gameObject;
@@ -114,11 +132,19 @@ public class PlayerCombatComponent : MonoBehaviour
                     break;
 
                 default:
-                    if (projectile.GetComponent<SpellLocomotionScript>().pivot.CompareTo("MagicPivotL") == 0) pivot = attachPointL;
-                    else pivot = attachPointR;
 
-                    spellObject = GameObject.Instantiate(projectile, pivot.transform.position, playerScript.cam.transform.rotation, pivot);
+                    if(projectile.GetComponent<SpellLocomotionScript>() != null)
+                    {
+                        if (projectile.GetComponent<SpellLocomotionScript>().pivot.CompareTo("MagicPivotL") == 0) pivot = attachPointL;
+                        else pivot = attachPointR;
+
+                        spellObject = GameObject.Instantiate(projectile, pivot.transform.position, playerScript.cam.transform.rotation, pivot);
+                    }
+                    else spellObject = GameObject.Instantiate(projectile);
+
                     spellObject.GetComponent<SpellScript>().owner = gameObject;
+                    spellObject.GetComponent<SpellScript>().damage *= atkMultiplier;
+
                     break;
             }
 
@@ -139,7 +165,11 @@ public class PlayerCombatComponent : MonoBehaviour
 
     public void attack()
     {
-        if (spellObject != null) spellObject.GetComponent<SpellScript>().shoot();
+        if (spellObject != null)
+        {
+            spellObject.GetComponent<SpellScript>().shoot();
+            if(spellObject.GetComponent<SphereCollider>() != null) spellObject.GetComponent<SphereCollider>().enabled = true;
+        }
     }
 
     public void addLight(GameObject o)
@@ -176,6 +206,29 @@ public class PlayerCombatComponent : MonoBehaviour
                 lights[i] = lights[i + 1];
                 lights[i + 1] = null;
             }
+        }
+    }
+
+    public void LevelUP()
+    {
+        if (XP <= requiredXP)
+        {
+            level++;
+            Vitality++;
+            Potency++;
+            Resistance++;
+
+            XP -= requiredXP;
+
+            float newMaxHealth = (float) maxHealth * (Mathf.Pow(1f + (float)(Vitality / 10f), 2f));
+            maxHealth = (int) newMaxHealth;
+            health = maxHealth;
+
+            atkMultiplier = Mathf.Log(Potency) + 1f;
+
+            requiredXP *= Mathf.Pow(1f + (float)(level/ 10f), 3f);
+            //requiredXP *= (1 + (level / 10));
+            //change required xp for next level
         }
     }
 }

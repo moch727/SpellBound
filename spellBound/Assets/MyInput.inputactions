@@ -60,9 +60,27 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Spell4",
+                    "type": "Button",
+                    "id": "f09396a1-9b6a-4305-ad01-095a41e85258",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Interact",
                     "type": "Button",
                     "id": "1f3a1c3b-fe92-4ee1-aa18-d0c9cb084f72",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwitchCam",
+                    "type": "Button",
+                    "id": "a0c29832-b1cd-4dba-b829-fa4aebf62a83",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -144,6 +162,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "76de64f1-e8a5-47d0-898e-47f76895d302",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchCam",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9634ca59-0d25-4dcf-bfde-fbf4ba86abdc",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Spell4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -17,12 +17,14 @@ public class MeleeHitbox : MonoBehaviour
         if (!GetComponent<Collider>().enabled) hasCollided = false;
     }
 
+    public float getDamage()
+    {
+        //return owner.currentAttack.attackDamage;
+        return owner.getDamage();
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if(other.CompareTag("Player")) hasCollided = true;
     }
-    //private void OnTriggerExit(Collider other)
-    //{
-        
-    //}
 }
