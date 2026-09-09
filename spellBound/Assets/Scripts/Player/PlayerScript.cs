@@ -1,4 +1,3 @@
-using UnityEditor.Animations;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using Unity.Cinemachine;
@@ -24,6 +23,8 @@ public class PlayerScript : MonoBehaviour
     public EnvironmentGroundLight environmentLight;
     //[HideInInspector]
     public bool inLight;
+    [SerializeField] GameObject lightBuffEffect;
+    private GameObject effect;
 
     public Action currentAction = Action.None;
     public enum Action
@@ -41,22 +42,26 @@ public class PlayerScript : MonoBehaviour
         locomotion = GetComponent<PlayerLocomotionComponent>();
         animator = GetComponent<PlayerAnimator>();
 
-        firstPersonCam.SetActive(false);
-        thirdPersonCam.SetActive(true);
-        cam = thirdPersonCam;
+        firstPersonCam.SetActive(true);
+        thirdPersonCam.GetComponent<Camera>().enabled = false;
+        cam = firstPersonCam;
+
+        if(lightBuffEffect != null) effect = GameObject.Instantiate(lightBuffEffect);
         //playerUI.GetComponentInChildren<PointBar>().setMaxValue(combat.maxLP);
     }
     void Update()
     {
+        effect.transform.position = transform.position;
         bool entered = false;
         for (int i = 0; i < combat.lights.Length; i++)
         {
-            if(combat.lights[i] != null && combat.lights[i].playerEntered)
+            if((combat.lights[i] != null && combat.lights[i].playerEntered) || environmentLight != null)
             {
                 entered = true; break;
             }
         }
         inLight = entered;
+        effect.SetActive(inLight);
 
         //if (currentAction == Action.CutScene) animator.setToNeutral();
         //manageUI();
@@ -71,8 +76,9 @@ public class PlayerScript : MonoBehaviour
     private void ForceThirdPersonCamera()
     {
         firstPersonCam.SetActive (false);
-        thirdPersonCam.SetActive (true);
-        thirdPersonCam.GetComponent<CinemachineBrain>().enabled = false;
+        thirdPersonCam.GetComponent<Camera>().enabled = true;
+        //thirdPersonCam.SetActive (true);
+        thirdPersonCam.GetComponent<CinemachineBrain>().enabled = false; //To prevent control of the camera
     }
 
     public void ResetAnimation()
@@ -84,7 +90,7 @@ public class PlayerScript : MonoBehaviour
     public void ResetCam()
     {
         firstPersonCam.SetActive(false);
-        thirdPersonCam.SetActive(false);
+        //thirdPersonCam.SetActive(false);
         thirdPersonCam.GetComponent<CinemachineBrain>().enabled = true;
 
         cam.SetActive(true);
@@ -95,8 +101,6 @@ public class PlayerScript : MonoBehaviour
         if (currentAction == Action.None && interactable != null)
         {
             handleInteraction(interactable);
-
-            //currentAction = Action.Interact;
         }
     }
     public void OnAttack()
@@ -133,11 +137,13 @@ public class PlayerScript : MonoBehaviour
         {
             firstPersonCam.SetActive(true);
             cam = firstPersonCam;
-            thirdPersonCam.SetActive(false);
+            //thirdPersonCam.SetActive(false);
+            thirdPersonCam.GetComponent<Camera>().enabled = false;
         }
         else
         {
-            thirdPersonCam.SetActive(true);
+            //thirdPersonCam.SetActive(true);
+            thirdPersonCam.GetComponent<Camera>().enabled = true;
             cam = thirdPersonCam;
             firstPersonCam.SetActive(false);
         }
@@ -166,6 +172,7 @@ public class PlayerScript : MonoBehaviour
             }
             else if (o.GetComponent<FurnaceScript>() != null)
             {
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation((o.transform.position - transform.position).normalized), 360f);
                 animator.setToNeutral();
                 animator.animateInteract("Furnace");
 
@@ -205,12 +212,22 @@ public class PlayerScript : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-        //inLight = other != null && other.gameObject.CompareTag("LightSrc");
-
-        if (other.CompareTag("Interactable") && IsInteractable(other.gameObject))
+        if (other.CompareTag("Interactable") && IsInteractable(other.gameObject) && isFacingObject(other.gameObject))
         {
             interactable = other.gameObject;
         }
+        else
+        {
+            interactable = null;
+        }
+    }
+
+    private bool isFacingObject(GameObject o)
+    {
+        Quaternion r = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation((o.transform.position - transform.position).normalized), 360f);
+        return Mathf.Abs(transform.rotation.eulerAngles.y - r.eulerAngles.y) < 90;
+        //float dot = Vector3.Dot(transform.forward, (o.transform.position - transform.position).normalized);
+        //return dot > 0.7f;
     }
 
     private bool IsInteractable(GameObject o) //For new interact objects add its script here
@@ -219,11 +236,6 @@ public class PlayerScript : MonoBehaviour
     }
     private void OnTriggerExit(Collider other)
     {
-        //if (other.gameObject.CompareTag("LightSrc"))
-        //{
-        //    inLight = false;
-        //}
-
         if (other.CompareTag("Interactable"))
         {
             interactable = null;

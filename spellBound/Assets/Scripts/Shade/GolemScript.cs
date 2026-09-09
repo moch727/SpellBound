@@ -21,6 +21,7 @@ public class GolemScript : MonoBehaviour
     [SerializeField] GameObject stunEffect;
 
     private ParticleSystem barrierEffect;
+    private float prevDefense;
 
     private bool complete;
 
@@ -42,6 +43,8 @@ public class GolemScript : MonoBehaviour
         ResetWavePhase();
 
         barrierEffect = AIScript.spellObject.GetComponent<ParticleSystem>();
+        prevDefense = AIScript.defense;
+        AIScript.defense = 0.95f;
         for (int i = 0; i < srcList.Length; i++)
         {
             Vector3 randomPosition = transform.position;
@@ -148,6 +151,19 @@ public class GolemScript : MonoBehaviour
         {
             srcList[i] = null;
         }
+    }
+
+    public void ResetDefense(int i)
+    {
+        if (i == 0)
+        {
+            AIScript.defense = prevDefense + 0.2f;
+        }
+        else
+        {
+            AIScript.defense = prevDefense;
+        }
+
     }
     //public void PrepareAttack(GameObject spellObject)
     //{

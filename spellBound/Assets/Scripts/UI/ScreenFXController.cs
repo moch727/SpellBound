@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using static UnityEngine.Rendering.DebugUI;
 
 public class ScreenFXController : MonoBehaviour
 {
@@ -99,6 +100,15 @@ public class ScreenFXController : MonoBehaviour
 
     void ManageHurtEffect()
     {
+        if (player.inLight)
+        {
+            darkenEffect.SetFloat("_ScreenPower", Mathf.MoveTowards(darkenEffect.GetFloat("_ScreenPower"), 5f, Time.deltaTime * fadeSpeed));
+        }
+        else
+        {
+            darkenEffect.SetFloat("_ScreenPower", Mathf.MoveTowards(darkenEffect.GetFloat("_ScreenPower"), 1.5f, Time.deltaTime * fadeSpeed));
+        }
+
         if (player.combat.health / (float)player.combat.maxHealth <= 0.3f)
         {
             if (!flash)

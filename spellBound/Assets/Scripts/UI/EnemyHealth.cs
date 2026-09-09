@@ -13,13 +13,19 @@ public class EnemyHealth : MonoBehaviour
     void Awake()
     {
         //cam = Camera.main;
-        if(meleeAIScript != null) bar.setMaxValue(meleeAIScript.maxHealth);
+        if (meleeAIScript != null)
+        {
+            bar.setMaxValue(meleeAIScript.maxHealth);
+            //if (textMeshPro != null) textMeshPro.GetComponent<TextMeshProUGUI>().text = meleeAIScript.name;
+        }
+
+
     }
 
     public void SetMax()
     {
         if (meleeAIScript != null) bar.setMaxValue(meleeAIScript.maxHealth);
-        if (textMeshPro != null) textMeshPro.GetComponent<TextMeshProUGUI>().text = meleeAIScript.name; 
+        if (textMeshPro != null) textMeshPro.GetComponent<TextMeshProUGUI>().text = meleeAIScript.enemyName; 
     }
     void LateUpdate()
     {
