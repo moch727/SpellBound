@@ -6,9 +6,9 @@ public class PlayerLocomotionComponent : MonoBehaviour
     private PlayerScript playerScript;
     private Rigidbody rb;
 
-    private PlayerInput playerInput;
+    //private PlayerInput playerInput;
 
-    public Vector2 horizontalMovementInput;
+    [HideInInspector] public Vector2 horizontalMovementInput;
 
     [SerializeField] private float velocity = 4f;
     [SerializeField] private float acceleration = 7f;
@@ -21,21 +21,18 @@ public class PlayerLocomotionComponent : MonoBehaviour
     void Start()
     {
         playerScript = GetComponent<PlayerScript>();
-        playerInput = GetComponent<PlayerInput>();
+        //playerInput = GetComponent<PlayerInput>();
 
         rb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (camRotation) //camRotation
         {
             faceForward();
-            //rotate();
         }
 
-        //faceForward();
         if (playerScript.currentAction == PlayerScript.Action.None) //!playerScript.inAction
         {
             handleInput();
@@ -46,10 +43,6 @@ public class PlayerLocomotionComponent : MonoBehaviour
             }
             rb.useGravity = !OnSlope();
         }
-
-        //faceForward();
-        //Debug.Log(rb.linearVelocity);
-
     }
 
     private void handleInput()

@@ -18,13 +18,10 @@ public class SpellScript : MonoBehaviour
     public Sprite spellIcon;
     public int animID;
 
-    private float effectPercent;
     public float damage;
     public int lightcost;
     [SerializeField] GameObject lightPrefab;
     private bool lightPlaced;
-
-    private int[,] patternValues;
 
     private SpellLocomotionScript locomotion;
 
@@ -35,22 +32,12 @@ public class SpellScript : MonoBehaviour
     {
         locomotion = GetComponent<SpellLocomotionScript>();
     }
-    public void Instantiate(float damage, float effectPercent, int[,] patternValues)
-    {
-        this.damage = damage;
-        this.effectPercent = effectPercent;
-        this.patternValues = patternValues;
-    }
 
     public void shoot()
     {
         if(GetComponent<Collider>() != null) GetComponent<Collider>().enabled = true;
         if (locomotion != null) locomotion.startMotion(owner);
         else if (GetComponent<MudProjectileScript>() != null) GetComponent<MudProjectileScript>().startMotion();
-    }
-    public int[,] getPattern()
-    {
-        return patternValues;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -76,8 +63,6 @@ public class SpellScript : MonoBehaviour
             if (spellType == SpellType.Projectile) Destroy(gameObject);
 
         }
-
-
     }
 
 }

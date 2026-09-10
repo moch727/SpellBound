@@ -3,14 +3,12 @@ using UnityEngine;
 
 public class PlayerAnimator : MonoBehaviour
 {
-    private Rigidbody rb;
     private Animator animator;
     private PlayerLocomotionComponent locomotionComponent;
     private PlayerCombatComponent combatComponent;
     private PlayerScript script;
     void Awake()
     {
-        rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
         locomotionComponent = GetComponent<PlayerLocomotionComponent>();
         combatComponent = GetComponent<PlayerCombatComponent>();
@@ -45,6 +43,8 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetTrigger("Dodge");
     }
+
+    //Animation Events
     public void Fire()
     {
         combatComponent.attack();

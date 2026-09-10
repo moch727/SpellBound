@@ -22558,7 +22558,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7868590129474782915, guid: ab39d5edbfac75649a649a6306b41155, type: 3}
       propertyPath: type
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7868590129474782915, guid: ab39d5edbfac75649a649a6306b41155, type: 3}
       propertyPath: attackList.Array.data[2].attackRange
@@ -49163,15 +49163,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 770985515193863094, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 134.33
+      value: 110.09
       objectReference: {fileID: 0}
     - target: {fileID: 770985515193863094, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.9383645
+      value: 6.188365
       objectReference: {fileID: 0}
     - target: {fileID: 770985515193863094, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 34.765705
+      value: 69.425705
       objectReference: {fileID: 0}
     - target: {fileID: 770985515193863094, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -49359,15 +49359,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6303189584870050278, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 163.57391
+      value: 139.33391
       objectReference: {fileID: 0}
     - target: {fileID: 6303189584870050278, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 13.476677
+      value: 15.726677
       objectReference: {fileID: 0}
     - target: {fileID: 6303189584870050278, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 27.090567
+      value: 61.75057
       objectReference: {fileID: 0}
     - target: {fileID: 6303189584870050278, guid: 7b6abd5f1b0302a48b07bafa4aaaf40e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -72028,13 +72028,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1399960756}
-  effectRenderer: {fileID: -8627462095207121902, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
-  amplitude: 0.5
-  speed: 10
-  minIntensity: 1.49
-  darkenEffect: {fileID: 2100000, guid: b77ac22e08f065346bb386037872b69c, type: 2}
-  fading: 0
-  fadeSpeed: 4
   healthBar: {fileID: 1280951958}
   LPBar: {fileID: 876031779}
   xpCOllected: {fileID: 1594976183}
@@ -72600,15 +72593,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2586919899193731048, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 52.4
+      value: 28.16
       objectReference: {fileID: 0}
     - target: {fileID: 2586919899193731048, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.75
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2586919899193731048, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.2
+      value: 33.46
       objectReference: {fileID: 0}
     - target: {fileID: 2586919899193731048, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: m_LocalRotation.w
@@ -72683,6 +72676,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2676797684075234305, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
+      propertyPath: lightDependantObject
+      value: 
+      objectReference: {fileID: 6678657505297470533, guid: 0ae0c33148551274883d38c8169a0a7c, type: 3}
+    - target: {fileID: 2676797684075234305, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: 'spells.Array.data[0]'
       value: 
       objectReference: {fileID: 3832561319160043877, guid: c8f0f596330ed5749b9eb674eec4048e, type: 3}
@@ -72693,7 +72690,7 @@ PrefabInstance:
     - target: {fileID: 2676797684075234305, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: 'spells.Array.data[2]'
       value: 
-      objectReference: {fileID: 318105171036635567, guid: a33d5eaeca311934eb6227c6f22cf243, type: 3}
+      objectReference: {fileID: 9071680223288329069, guid: 1f069cf1331a9374c9b94290d4069fe2, type: 3}
     - target: {fileID: 2676797684075234305, guid: 8e238ad4d198f004aa4cdc35934b7a40, type: 3}
       propertyPath: 'spells.Array.data[3]'
       value: 

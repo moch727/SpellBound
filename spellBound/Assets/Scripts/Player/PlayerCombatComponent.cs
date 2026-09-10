@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerCombatComponent : MonoBehaviour
 {
     private PlayerScript playerScript;
-    private SpellManager spellManager;
 
     public GameObject[] spells;
     [SerializeField] int numOfSpells = 1;
@@ -16,6 +15,8 @@ public class PlayerCombatComponent : MonoBehaviour
     public Transform attachPointR;
 
     private GameObject spellObject;
+    [SerializeField] GameObject lightDependantObject;
+
     private bool spellActive = false;
 
     public int maxHealth;
@@ -62,6 +63,8 @@ public class PlayerCombatComponent : MonoBehaviour
                 timeElapsed = 0f;
             }
         }
+
+        incrementLights(); //Constantly check if any lights are removed
     }
     public GameObject currentSpell() 
     {
@@ -82,10 +85,6 @@ public class PlayerCombatComponent : MonoBehaviour
         spellActive = (spellObject != null);
         return spellActive;
     }
-    public GameObject getCurrentSpell()
-    {
-        return spells[index];
-    }
     
     public void reduceHealth(int reduction)
     {
@@ -105,29 +104,51 @@ public class PlayerCombatComponent : MonoBehaviour
             switch (projectile.GetComponent<SpellScript>().spellType)
             {
                 case (SpellScript.SpellType.LightDependant):
-                    if(lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<SpellScript>().spellName))) //To prevent spamming of spikes while one is active
-                    { //Only tr
-                        //(spellObject == null || (spellObject != null && spellObject.GetComponent<SpellScript>().spellType != SpellScript.SpellType.LightDependant))
-                        GameObject spell = null;
-                        for (int i = 0; i < lights.Length; i++)
-                        {
-                            if (lights[i] != null)
-                            {
-                                spell = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation); //what if light is on wall?
-                                spell.GetComponent<SpellScript>().owner = gameObject;
-                                spell.GetComponent<SpellScript>().damage *= atkMultiplier;
-                                for (int j = 0; j < spell.GetComponent<SpellScript>().otherProjectiles.Length; j++)
-                                {
-                                    spell.GetComponent<SpellScript>().otherProjectiles[j].GetComponent<SpellScript>().owner = gameObject;
-                                }
+                    //if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<SpellScript>().spellName))) //To prevent spamming of spikes while one is active
+                    //{
+                    //    //(spellObject == null || (spellObject != null && spellObject.GetComponent<SpellScript>().spellType != SpellScript.SpellType.LightDependant))
+                    //    //GameObject spell = null;
+                    //    //for (int i = 0; i < lights.Length; i++)
+                    //    //{
+                    //    //    if (lights[i] != null)
+                    //    //    {
+                    //    //        spell = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation); //what if light is on wall?
+                    //    //        spell.GetComponent<SpellScript>().owner = gameObject;
+                    //    //        spell.GetComponent<SpellScript>().damage *= atkMultiplier;
+                    //    //        for (int j = 0; j < spell.GetComponent<SpellScript>().otherProjectiles.Length; j++)
+                    //    //        {
+                    //    //            spell.GetComponent<SpellScript>().otherProjectiles[j].GetComponent<SpellScript>().owner = gameObject;
+                    //    //        }
 
-                                lights[i].fadeSpeed = lights[i].GetComponent<Light>().intensity / 2f;
-                                lights[i].GetComponent<SphereCollider>().radius = 0f;
-                                incrementLights();
-                            }
+                    //    //        lights[i].fadeSpeed = lights[i].GetComponent<Light>().intensity / 2f;
+                    //    //        lights[i].GetComponent<SphereCollider>().radius = 0f;
+                    //    //        incrementLights();
+                    //    //    }
 
-                        }
-                        spellObject = spell;
+                    //    //}
+                    //    //spellObject = spell;
+
+                    //    //for (int i = 0; i < lights.Length; i++)
+                    //    //{
+                    //    //    if (lights[i] != null)
+                    //    //    {
+                    //    //        spellObject = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation);
+                    //    //        break;
+                    //    //    }
+
+                    //    //}
+
+
+                    //    //spellObject.GetComponent<SpellScript>().owner = gameObject;
+                    //    //spellObject.GetComponent<SpellScript>().damage *= atkMultiplier;
+                    //}
+
+                    if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<LightDependentSpellScript>().spell.spellName))) //To prevent spamming of spikes while one is active
+                    {
+                        spellObject = GameObject.Instantiate(lightDependantObject);
+                        spellObject.GetComponent<LightDependentSpellScript>().CreateSpells(playerScript, projectile, lights, projectile.GetComponent<SpellScript>().damage * atkMultiplier);
+
+                        reduceLP(projectile);
                     }
                     break;
 
@@ -145,27 +166,28 @@ public class PlayerCombatComponent : MonoBehaviour
                     spellObject.GetComponent<SpellScript>().owner = gameObject;
                     spellObject.GetComponent<SpellScript>().damage *= atkMultiplier;
 
+                    reduceLP(projectile);
+
                     break;
-            }
-
-            if(spellObject != null)
-            {
-                LP -= projectile.GetComponent<SpellScript>().lightcost;
-                if (LP < 0)
-                {
-                    health += LP;
-                    LP = 0;
-                }
-
-                if (health < 0) health = 0;
             }
 
         }
     }
 
+    private void reduceLP(GameObject projectile)
+    {
+        LP -= projectile.GetComponent<SpellScript>().lightcost;
+        if (LP < 0)
+        {
+            health += LP;
+            LP = 0;
+        }
+
+        if (health < 0) health = 0;
+    }
     public void attack()
     {
-        if (spellObject != null)
+        if (spellObject != null && spellObject.GetComponent<SpellScript>() != null)
         {
             spellObject.GetComponent<SpellScript>().shoot();
             if(spellObject.GetComponent<SphereCollider>() != null) spellObject.GetComponent<SphereCollider>().enabled = true;
@@ -195,10 +217,6 @@ public class PlayerCombatComponent : MonoBehaviour
 
     private void incrementLights()
     {
-        //for(int i = 0; i < lightNums; i++)
-        //{
-        //    if (lights[i] == null) lightNums--;
-        //}
         for (int i = 0; i < lights.Length - 1; i++)
         {
             if (lights[i] == null)

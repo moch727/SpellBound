@@ -8,16 +8,10 @@ public class PlayerScript : MonoBehaviour
     [HideInInspector] public PlayerLocomotionComponent locomotion;
     [HideInInspector] public PlayerAnimator animator;
 
-    //UI component
-    //[SerializeField] private Canvas playerUI;
-    //[SerializeField] private GameObject noteManager;
     [HideInInspector] public GameObject cam;
 
     [SerializeField] GameObject firstPersonCam;
     [SerializeField] GameObject thirdPersonCam;
-
-    private GameObject noteUI;
-    private NoteManagerScript noteUIManager;
 
 
     public EnvironmentGroundLight environmentLight;
@@ -47,7 +41,6 @@ public class PlayerScript : MonoBehaviour
         cam = firstPersonCam;
 
         if(lightBuffEffect != null) effect = GameObject.Instantiate(lightBuffEffect);
-        //playerUI.GetComponentInChildren<PointBar>().setMaxValue(combat.maxLP);
     }
     void Update()
     {
@@ -64,14 +57,7 @@ public class PlayerScript : MonoBehaviour
         effect.SetActive(inLight);
 
         //if (currentAction == Action.CutScene) animator.setToNeutral();
-        //manageUI();
-        //animate();
     }
-    //void manageUI()
-    //{
-    //    playerUI.GetComponentInChildren<PointBar>().setValue(combat.lp);
-    //    //noteManager.SetActive(attackingState);
-    //}
 
     private void ForceThirdPersonCamera()
     {
@@ -105,7 +91,6 @@ public class PlayerScript : MonoBehaviour
     }
     public void OnAttack()
     {
-        //inAction = true;
         if (currentAction == Action.None)
         {
             GetComponent<Rigidbody>().linearVelocity = Vector3.zero; //freeze motion

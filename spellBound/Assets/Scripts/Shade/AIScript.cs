@@ -71,7 +71,11 @@ public class AIScript : MonoBehaviour
     public float patrolWalkSpeed;
     public float combatWalkSpeed;
 
-    public ShadeScript.AIState state = ShadeScript.AIState.None;
+    public enum AIState
+    {
+        Standby, None, Attack, Pursue
+    }
+    public AIState state = AIState.None;
 
     private bool targetFound;
 
@@ -138,7 +142,7 @@ public class AIScript : MonoBehaviour
                 agent.SetDestination(target.transform.position);
                 agent.speed = combatWalkSpeed;
                 float distanceToTarget = Vector3.Distance(gameObject.transform.position, target.transform.position);
-                Debug.Log(distanceToTarget);
+                //Debug.Log(distanceToTarget);
                 //animator.SetInteger("WalkNum", 1);
 
                 if (distanceToTarget > maxAttackRange + 0.1f) //If distance is too far for ai to attack
@@ -162,14 +166,14 @@ public class AIScript : MonoBehaviour
                     //Mathf.Abs(transform.rotation.eulerAngles.y - r.eulerAngles.y) < 90
                     //agent.angularSpeed = 360f;
 
-                    if (state == ShadeScript.AIState.None) //verify if center of ai is blocked by obstacle? also check if ai is facing player
+                    if (state == AIState.None) //verify if center of ai is blocked by obstacle? also check if ai is facing player
                     {
                         Debug.Log("triggerAttack");
                         animator.SetBool("Walk", false);
                         animator.SetInteger("AttackNum", currentAttack.animID);
                         animator.SetTrigger("Attack");
 
-                        state = ShadeScript.AIState.Attack;
+                        state = AIState.Attack;
                     }
                 }
             }
@@ -228,7 +232,7 @@ public class AIScript : MonoBehaviour
         }
 
 
-        Debug.Log(validAttack);
+        //Debug.Log(validAttack);
         currentAttack = attackList[UnityEngine.Random.Range(shortestAttack, validAttack)];
         agent.stoppingDistance = currentAttack.attackRange;
 
@@ -334,7 +338,7 @@ public class AIScript : MonoBehaviour
     {
         canMove = true;
         canRotate = true;
-        state = ShadeScript.AIState.None;
+        state = AIState.None;
         if(attachPoint != null) attachPoint.rotation = Quaternion.identity;
         previousAttack = currentAttack;
         currentAttack = null;

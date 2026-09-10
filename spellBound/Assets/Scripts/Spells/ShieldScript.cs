@@ -13,6 +13,7 @@ public class ShieldScript : MonoBehaviour
     void Start()
     {
         effect = GameObject.Instantiate(spawnEffect, transform.position + transform.up * 0.25f, transform.rotation).GetComponent<ParticleSystem>();
+        GetComponent<SpellScript>().damage = 0;
 
         if (effect.transform.rotation.eulerAngles.x >= 90 || effect.transform.rotation.eulerAngles.z >= 90)
         {

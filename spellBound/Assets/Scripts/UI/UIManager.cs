@@ -8,23 +8,6 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] PlayerScript player;
 
-    [Header("FullScreen Effect")]
-    [SerializeField] ScriptableRendererFeature effectRenderer;
-    [SerializeField] float amplitude;
-    [SerializeField] float speed;
-    [SerializeField] float minIntensity;
-    [SerializeField] Material darkenEffect;
-    private bool flash;
-    private float count;
-
-    //For Fade in and out
-    [HideInInspector] public bool fading;
-    [SerializeField] float fadeSpeed;
-    private float originalIntensity;
-    private bool inComplete;
-
-    //[SerializeField] PointBar lpBar;
-    //[SerializeField] PointBar extraLPBar;
     [Header("Main UI")]
     [SerializeField] Slider healthBar;
     [SerializeField] Slider LPBar;
@@ -63,13 +46,10 @@ public class UIManager : MonoBehaviour
     }
     void LateUpdate()
     {
-        //lpBar.setValue(player.combat.lp);
-        //extraLPBar.setValue(player.combat.lp + player.combat.extraLP);
         UpdateStatBars();
-        //UpdateFullScreenEffect();
 
 
-        spellIcon.sprite = player.combat.getCurrentSpell().GetComponent<SpellScript>().spellIcon;
+        spellIcon.sprite = player.combat.currentSpell().GetComponent<SpellScript>().spellIcon;
 
         if(player.interactable != null && player.currentAction != PlayerScript.Action.Interact)
         {
@@ -81,74 +61,6 @@ public class UIManager : MonoBehaviour
         }
 
         if(levelUpBox.activeSelf) UpdateLevelScreen(); 
-    }
-
-    void UpdateFullScreenEffect()
-    {
-        if (fading) ManageFade();
-        else ManageHurtEffect();
-
-    }
-    public void EnableFadeInOut() 
-    {
-        if (!fading)
-        {
-            originalIntensity = darkenEffect.GetFloat("_ScreenPower"); //save intensity to go back to after the fade is over
-            fading = true;
-        }
-    }
-    void ManageFade()
-    {
-        float value = 0;
-        if (inComplete) value = originalIntensity; //If the fade in portion is complete, fade out to the original intensity
-        darkenEffect.SetFloat("_ScreenPower", Mathf.MoveTowards(darkenEffect.GetFloat("_ScreenPower"), value, Time.deltaTime * fadeSpeed));
-
-        if (Mathf.Abs(value - darkenEffect.GetFloat("_ScreenPower")) < 0.001f)
-        {
-            if (!inComplete)
-            {
-                fading = false;
-                inComplete = true;
-            }
-            else
-            {
-                inComplete = false;
-            }
-        }
-    }
-    void ManageHurtEffect()
-    {
-        if ( player.combat.health / (float) player.combat.maxHealth <= 0.3f)
-        {
-            if (!flash)
-            {
-                count = 0;
-                flash = true;
-            }
-            float value = amplitude * Mathf.Sin((count * speed / Mathf.PI) - Mathf.PI / 2) + (amplitude + minIntensity);
-            darkenEffect.SetFloat("_ScreenPower", value);
-
-            count += Time.deltaTime;
-            //flash
-        }
-        else if (flash)
-        {
-            float value = amplitude * Mathf.Sin(count * speed / Mathf.PI) + (amplitude + minIntensity);
-
-            darkenEffect.SetFloat("_ScreenPower", value);
-            count += Time.deltaTime;
-
-            if (Mathf.Abs(value - minIntensity) < 0.001f)
-            {
-                count = 0;
-                flash = false;
-            }
-
-        }
-        else
-        {
-            darkenEffect.SetFloat("_ScreenPower", 1.5f);
-        }
     }
     public void ShowFurnaceBox()
     {
