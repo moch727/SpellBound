@@ -13,6 +13,7 @@ TagManager:
   - DamageBox
   - Slope
   - Interactable
+  - Checkpoint
   layers:
   - Default
   - TransparentFX

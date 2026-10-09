@@ -53,20 +53,13 @@ public class PlayerCombatComponent : MonoBehaviour
     }
     private void Update()
     {
-        if (playerScript.inLight)
+        if(playerScript.currentAction != PlayerScript.Action.Dead && playerScript.currentAction != PlayerScript.Action.CutScene)
         {
-            timeElapsed += Time.deltaTime;
-            if (timeElapsed >= 1) //1 is lp recovery interval
-            {
-                if (health < maxHealth) health += 1;
-                else if (LP < maxLP) LP += 1; //combat.maxExtraLP
-                timeElapsed = 0f;
-            }
+            UpdateLightTick();
+            incrementLights(); //Constantly check if any lights are removed
         }
-
-        incrementLights(); //Constantly check if any lights are removed
     }
-    public GameObject currentSpell() 
+    public GameObject currentSpell()
     {
         return spells[index];
     }
@@ -78,12 +71,12 @@ public class PlayerCombatComponent : MonoBehaviour
 
     public void spellChange(int index)
     {
-        if(index < numOfSpells) this.index = index;
+        if (index < numOfSpells) this.index = index;
     }
 
     public void addSpell(GameObject spell)
     {
-        spells[index+1] = spell;
+        spells[index + 1] = spell;
         numOfSpells++;
     }
     public bool getSpellActive()
@@ -91,11 +84,31 @@ public class PlayerCombatComponent : MonoBehaviour
         spellActive = (spellObject != null);
         return spellActive;
     }
-    
+
     public void reduceHealth(int reduction)
     {
-        health -= reduction;
-        if(health < 0) health = 0;
+        if (health > 0)
+        {
+            health -= reduction;
+            if (health <= 0)
+            {
+                health = 0;
+                handleDeath();
+            }
+        }
+    }
+
+    private void handleDeath()
+    {
+        // playerScript.currentAction = PlayerScript.Action.Dead;
+        playerScript.animator.animateDeath();
+    }
+
+    public void ResetStats()
+    {
+        health = maxHealth;
+        LP = maxLP;
+        XP = 0;
     }
     public void cast()
     {
@@ -104,7 +117,7 @@ public class PlayerCombatComponent : MonoBehaviour
             GameObject projectile;
             projectile = spells[index];
 
-            if (playerScript.environmentLight != null && projectile.CompareTag("Projectile"))  projectile = playerScript.environmentLight.replacedSpell;
+            if (playerScript.environmentLight != null && projectile.CompareTag("Projectile")) projectile = playerScript.environmentLight.replacedSpell;
             Transform pivot;
 
             switch (projectile.GetComponent<SpellScript>().spellType)
@@ -160,7 +173,7 @@ public class PlayerCombatComponent : MonoBehaviour
 
                 default:
 
-                    if(projectile.GetComponent<SpellLocomotionScript>() != null)
+                    if (projectile.GetComponent<SpellLocomotionScript>() != null)
                     {
                         if (projectile.GetComponent<SpellLocomotionScript>().pivot.CompareTo("MagicPivotL") == 0) pivot = attachPointL;
                         else pivot = attachPointR;
@@ -182,21 +195,29 @@ public class PlayerCombatComponent : MonoBehaviour
 
     private void reduceLP(GameObject projectile)
     {
-        LP -= projectile.GetComponent<SpellScript>().lightcost;
-        if (LP < 0)
+        if (health > 0)
         {
-            health += LP;
-            LP = 0;
+            LP -= projectile.GetComponent<SpellScript>().lightcost;
+            if (LP < 0)
+            {
+                health += LP;
+                LP = 0;
+            }
+
+            if (health <= 0)
+            {
+                handleDeath();
+                health = 0;
+            }
         }
 
-        if (health < 0) health = 0;
     }
     public void attack()
     {
         if (spellObject != null && spellObject.GetComponent<SpellScript>() != null)
         {
             spellObject.GetComponent<SpellScript>().shoot();
-            if(spellObject.GetComponent<SphereCollider>() != null) spellObject.GetComponent<SphereCollider>().enabled = true;
+            if (spellObject.GetComponent<SphereCollider>() != null) spellObject.GetComponent<SphereCollider>().enabled = true;
         }
     }
 
@@ -207,9 +228,9 @@ public class PlayerCombatComponent : MonoBehaviour
         {
             if (lights[i] != null) count++;
         }
-        if(count != lightNums) lightNums = count;
+        if (count != lightNums) lightNums = count;
 
-        if(lightNums >= 3)
+        if (lightNums >= 3)
         {
             //incrementLights();
             lights[0].fadeSpeed = 50;
@@ -221,6 +242,19 @@ public class PlayerCombatComponent : MonoBehaviour
         lightNums++;
     }
 
+    private void UpdateLightTick()
+    {
+        if (playerScript.inLight)
+        {
+            timeElapsed += Time.deltaTime;
+            if (timeElapsed >= 1) //1 is lp recovery interval
+            {
+                if (health < maxHealth) health += 1;
+                else if (LP < maxLP) LP += 1; //combat.maxExtraLP
+                timeElapsed = 0f;
+            }
+        }
+    }
     private void incrementLights()
     {
         for (int i = 0; i < lights.Length - 1; i++)
@@ -244,13 +278,13 @@ public class PlayerCombatComponent : MonoBehaviour
 
             XP -= requiredXP;
 
-            float newMaxHealth = (float) maxHealth * (Mathf.Pow(1f + (float)(Vitality / 10f), 2f));
-            maxHealth = (int) newMaxHealth;
+            float newMaxHealth = (float)maxHealth * (Mathf.Pow(1f + (float)(Vitality / 10f), 2f));
+            maxHealth = (int)newMaxHealth;
             health = maxHealth;
 
             atkMultiplier = Mathf.Log(Potency) + 1f;
 
-            requiredXP *= Mathf.Pow(1f + (float)(level/ 10f), 3f);
+            requiredXP *= Mathf.Pow(1f + (float)(level / 10f), 3f);
             //requiredXP *= (1 + (level / 10));
             //change required xp for next level
         }

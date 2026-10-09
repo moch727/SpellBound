@@ -4,6 +4,7 @@ using Unity.Cinemachine;
 
 public class PlayerScript : MonoBehaviour
 {
+    
     [HideInInspector] public PlayerCombatComponent combat;
     [HideInInspector] public PlayerLocomotionComponent locomotion;
     [HideInInspector] public PlayerAnimator animator;
@@ -23,12 +24,14 @@ public class PlayerScript : MonoBehaviour
     public Action currentAction = Action.None;
     public enum Action
     {
-        None, Attack, Dodge, Interact, CutScene
+        None, Attack, Dodge, Interact, CutScene, Dead
     }
 
     //[HideInInspector]
     public UIManager UIManager;
     public GameObject interactable;
+
+    public Transform checkPoint;
     void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -81,7 +84,13 @@ public class PlayerScript : MonoBehaviour
 
         cam.SetActive(true);
     }
-
+    public void ResetCharacter() //For respawn after gameover
+    {
+        currentAction = Action.None;
+        ResetAnimation();
+        combat.ResetStats();
+        transform.position = checkPoint.transform.position;
+    }
     public void OnInteract()
     {
         if (currentAction == Action.None && interactable != null)
@@ -152,14 +161,14 @@ public class PlayerScript : MonoBehaviour
                 locomotion.camRotation = false;
 
                 animator.setToNeutral();
-                animator.animateInteract("Open");
+                animator.animateTrigger("Open");
                 currentAction = Action.Interact;
             }
             else if (o.GetComponent<FurnaceScript>() != null)
             {
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation((o.transform.position - transform.position).normalized), 360f);
                 animator.setToNeutral();
-                animator.animateInteract("Furnace");
+                animator.animateTrigger("Furnace");
 
                 currentAction = Action.Interact;
             }
@@ -193,7 +202,11 @@ public class PlayerScript : MonoBehaviour
         }
 
         if(other.CompareTag("LightSrc") && other.GetComponent<EnvironmentGroundLight>() != null) environmentLight = other.GetComponent<EnvironmentGroundLight>();
-
+        if (other.CompareTag("Checkpoint"))
+        {
+            Debug.Log("Checkpoint set!");
+            checkPoint = other.transform;
+        }
     }
     private void OnTriggerStay(Collider other)
     {

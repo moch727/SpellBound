@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
@@ -9,6 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] PlayerScript player;
 
     [Header("Main UI")]
+    public Canvas gameplayUI;
     [SerializeField] Slider healthBar;
     [SerializeField] Slider LPBar;
     [SerializeField] TextMeshProUGUI xpCOllected;
@@ -33,15 +36,23 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject levelUpEffect;
     public int availablePoints;
 
+    [Header("Death Screen")]
+    [SerializeField] Canvas deathUI;
+    [SerializeField] Button continueButton;
+
+    [SerializeField] ScreenFXController screenFXController;
     private Stack<GameObject> panelStack = new Stack<GameObject>();
     private void Awake()
     {
         interactText.SetActive(false);
         furnaceScreen.gameObject.SetActive(false);
+        deathUI.gameObject.SetActive(false);
         levelUpBox.SetActive(false);
 
         healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.maxHealth, healthBar.GetComponent<RectTransform>().sizeDelta.y);
         LPBar.GetComponent<RectTransform>().sizeDelta = new Vector2(15 * player.combat.maxLP, LPBar.GetComponent<RectTransform>().sizeDelta.y);
+
+
         //lpBar.setMaxValue(player.combat.maxLP);
         //extraLPBar.setMaxValue(player.combat.maxLP);
     }
@@ -49,9 +60,6 @@ public class UIManager : MonoBehaviour
     {
         UpdateStatBars();
         magicSlotUIManager.UpdateSpellSlots(player.combat.currentIndex(), player.combat.spells);
-
-
-
 
         if(player.interactable != null && player.currentAction != PlayerScript.Action.Interact)
         {
@@ -63,6 +71,12 @@ public class UIManager : MonoBehaviour
         }
 
         if(levelUpBox.activeSelf) UpdateLevelScreen(); 
+
+        if(player.currentAction == PlayerScript.Action.Dead && screenFXController.state == ScreenFXController.ScreenState.Black)
+        {
+            deathUI.gameObject.SetActive(true);
+            UpdateDeathScreen();
+        }
     }
 
     void UpdateStatBars()
@@ -105,7 +119,7 @@ public class UIManager : MonoBehaviour
         if(panelStack.Count <= 0)
         {
             furnaceScreen.gameObject.SetActive(false);
-            player.animator.animateInteract("Resume");
+            player.animator.animateTrigger("Resume");
 
             Time.timeScale = 1;
             Cursor.lockState = CursorLockMode.Locked;
@@ -137,6 +151,19 @@ public class UIManager : MonoBehaviour
         GameObject.Instantiate(levelUpEffect, player.transform.position, Quaternion.identity);
     }
 
+    void UpdateDeathScreen()
+    {
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    public void Continue()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        player.ResetCharacter();
+        screenFXController.Fadeout();
+        deathUI.gameObject.SetActive(false);
+        gameplayUI.gameObject.SetActive(true);
+    }
     //public bool HasMaxPoints()
     //{
     //    return availablePoints == player.combat.XP;

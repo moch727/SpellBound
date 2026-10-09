@@ -7,6 +7,8 @@ public class PlayerAnimator : MonoBehaviour
     private PlayerLocomotionComponent locomotionComponent;
     private PlayerCombatComponent combatComponent;
     private PlayerScript script;
+
+    [SerializeField] ScreenFXController screenFXController;
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -44,13 +46,18 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetTrigger("Dodge");
     }
 
+    public void animateDeath()
+    {
+        animator.SetBool("Dead", true);
+    }
+
     //Animation Events
     public void Fire()
     {
         combatComponent.attack();
     }
 
-    public void animateInteract(string action)
+    public void animateTrigger(string action)
     {
         animator.SetTrigger(action);
     }
@@ -65,5 +72,15 @@ public class PlayerAnimator : MonoBehaviour
         script.locomotion.camRotation = true;
 
         script.ResetCam();
+    }
+
+    public void SetDeath()
+    {
+        script.currentAction = PlayerScript.Action.Dead;
+    }
+    public void DeathFadeIn()
+    {
+        script.UIManager.gameplayUI.gameObject.SetActive(false);
+        screenFXController.FadeIn();
     }
 }
