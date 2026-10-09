@@ -70,6 +70,12 @@ public class PlayerCombatComponent : MonoBehaviour
     {
         return spells[index];
     }
+
+    public int currentIndex()
+    {
+        return index;
+    }
+
     public void spellChange(int index)
     {
         if(index < numOfSpells) this.index = index;

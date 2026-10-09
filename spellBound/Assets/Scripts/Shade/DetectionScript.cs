@@ -28,10 +28,16 @@ public class DetectionScript : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
     }
-    private void FixedUpdate()
+    private void Update()
     {
 
-        isVisible = target != null ? inLineOfSight() && Physics.Raycast(transform.position, ((target.transform.position + Vector3.up) - transform.position).normalized, out RaycastHit hit, aggroRange, layersToHit) && hit.collider.CompareTag("Player") : false;
+        isVisible = target != null ? inLineOfSight() && Physics.Raycast(transform.position, ((target.transform.position + Vector3.up * 1.5f + transform.forward * 0.5f) - transform.position).normalized, out RaycastHit hit, aggroRange, layersToHit) && hit.collider.CompareTag("Player") : false;
+        if (target != null)
+        {
+            transform.forward = ((target.transform.position + Vector3.up * 0.5f) - transform.position).normalized;
+            Debug.Log(Physics.Raycast(transform.position, ((target.transform.position + Vector3.up) - transform.position).normalized, out RaycastHit hit2, aggroRange, layersToHit) && hit2.collider.CompareTag("Player"));
+        }
+        //Ignore light layer to prevent the light hitboxes from interfering
 
         //if (target != null) Debug.Log(Vector3.Distance(transform.position, target.transform.position));
         if (target != null && Vector3.Distance(transform.position, target.transform.position) >= aggroRange) //remove vertical distance difference
@@ -43,7 +49,7 @@ public class DetectionScript : MonoBehaviour
         if(runbackDetector != null && transform.position == initialPosition) runbackDetector.enabled = false; 
     }
 
-    private bool inLineOfSight()
+    private bool inLineOfSight() //Is the object actually facing the target?
     {
         if (enableLineOfSight)
         {

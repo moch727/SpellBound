@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] Slider[] rings;
 
+    [SerializeField] MagicSlotUIManager magicSlotUIManager;
     [SerializeField] Image spellIcon;
 
     [SerializeField] GameObject interactText;
@@ -47,9 +48,10 @@ public class UIManager : MonoBehaviour
     void LateUpdate()
     {
         UpdateStatBars();
+        magicSlotUIManager.UpdateSpellSlots(player.combat.currentIndex(), player.combat.spells);
 
 
-        spellIcon.sprite = player.combat.currentSpell().GetComponent<SpellScript>().spellIcon;
+
 
         if(player.interactable != null && player.currentAction != PlayerScript.Action.Interact)
         {
@@ -62,6 +64,32 @@ public class UIManager : MonoBehaviour
 
         if(levelUpBox.activeSelf) UpdateLevelScreen(); 
     }
+
+    void UpdateStatBars()
+    {
+        healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.maxHealth, healthBar.GetComponent<RectTransform>().sizeDelta.y);
+        LPBar.GetComponent<RectTransform>().sizeDelta = new Vector2(15 * player.combat.maxLP, LPBar.GetComponent<RectTransform>().sizeDelta.y);
+
+        healthBar.value = Mathf.MoveTowards(healthBar.value, (float)player.combat.health / (float)player.combat.maxHealth, 2f * Time.deltaTime);
+        LPBar.value = Mathf.MoveTowards(LPBar.value, (float)player.combat.LP / (float)player.combat.maxLP, 2f * Time.deltaTime);
+
+        xpCOllected.text = ((int)player.combat.XP).ToString();
+
+        for (int i = 0; i < rings.Length; i++)
+        {
+            if (player.combat.lights[i] == null) rings[i].value = 0;
+            else
+            {
+                rings[i].value = player.combat.lights[i].fadePercent;
+            }
+        }
+    }
+
+    void UpdateSpellSlots()
+    {
+        spellIcon.sprite = player.combat.currentSpell().GetComponent<SpellScript>().spellIcon;
+    }
+
     public void ShowFurnaceBox()
     {
         furnaceScreen.gameObject.SetActive(true);
@@ -113,23 +141,4 @@ public class UIManager : MonoBehaviour
     //{
     //    return availablePoints == player.combat.XP;
     //}
-    void UpdateStatBars()
-    {
-        healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.maxHealth, healthBar.GetComponent<RectTransform>().sizeDelta.y);
-        LPBar.GetComponent<RectTransform>().sizeDelta = new Vector2(15 * player.combat.maxLP, LPBar.GetComponent<RectTransform>().sizeDelta.y);
-
-        healthBar.value = Mathf.MoveTowards(healthBar.value, (float)player.combat.health / (float) player.combat.maxHealth, 2f * Time.deltaTime);
-        LPBar.value = Mathf.MoveTowards(LPBar.value, (float)player.combat.LP / (float)player.combat.maxLP, 2f * Time.deltaTime);
-
-        xpCOllected.text = ((int) player.combat.XP).ToString();
-
-        for (int i = 0; i < rings.Length; i++)
-        {
-            if (player.combat.lights[i] == null) rings[i].value = 0;
-            else
-            {
-                rings[i].value = player.combat.lights[i].fadePercent;
-            }
-        }
-    }
 }

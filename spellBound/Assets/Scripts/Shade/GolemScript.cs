@@ -137,8 +137,7 @@ public class GolemScript : MonoBehaviour
         {
             UpdateWavePhase();
         }
-
-        ManageRun();
+        else ManageRun();
     }
 
     private void ResetWavePhase()

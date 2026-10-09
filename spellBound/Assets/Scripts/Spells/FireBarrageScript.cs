@@ -3,6 +3,10 @@ using UnityEngine;
 public class FireBarrageScript : MonoBehaviour
 {
     [SerializeField] GameObject projectile;
+
+    //TODO: Make it so you can control the projectile travel distance in this script, so you can time it with the spell circle shrink to prevent errors with the projectile remaining but the circle being destroyed
+
+
     [SerializeField] ParticleSystem effect;
 
     [SerializeField] Transform minTransform;
@@ -42,7 +46,7 @@ public class FireBarrageScript : MonoBehaviour
     {
         //if(transform.parent == null) transform.position = Vector3.MoveTowards(transform.position, targetLocation, Time.deltaTime * 3f);
 
-        if(Vector3.Distance(transform.position, targetLocation) < 0.1f)
+        if(Vector3.Distance(transform.position, targetLocation) < 0.1f) //if position reached
         {
             timeElapsed += Time.deltaTime;
             totalTime += Time.deltaTime;
@@ -50,7 +54,7 @@ public class FireBarrageScript : MonoBehaviour
             {
                 Destroy(gameObject);
             }
-            else if (timeElapsed > FIREINTERVAL)
+            else if (timeElapsed > FIREINTERVAL && totalTime + 2.5f < DURATION)
             {
 
                 GameObject spellObject;

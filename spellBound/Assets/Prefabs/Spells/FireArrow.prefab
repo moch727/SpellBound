@@ -4875,7 +4875,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   velocity: 5
-  maxRange: 30
+  maxRange: 8
   trackEnemy: 0
   useGravity: 0
   steer: 0

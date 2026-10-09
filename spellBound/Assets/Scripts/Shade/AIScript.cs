@@ -51,12 +51,12 @@ public class AIScript : MonoBehaviour
     [HideInInspector] public GameObject spellObject;
     private float maxAttackRange;
 
-    public int health;
+    public float health;
     public float defense; //10% defense means 90% of the damage goes thru
 
     public float baseXP;
 
-    [HideInInspector] public int maxHealth;
+    [HideInInspector] public float maxHealth;
 
     [SerializeField] Transform attachPoint;
     [SerializeField] Transform[] waypoints;
@@ -239,7 +239,7 @@ public class AIScript : MonoBehaviour
     }
     public void reduceHealth(int reduction)
     {
-        health -= (int) (reduction * (1-defense));
+        health -=  (reduction * (1-defense));
         if (health <= 0) //Reset everything for death
         {
             agent.speed = 0;
