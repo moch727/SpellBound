@@ -83,7 +83,6 @@ public class ScreenFXController : MonoBehaviour
         if (state != ScreenState.FadeInOut)
         {
             originalIntensity = darkenEffect.GetFloat("_ScreenPower"); //save intensity to go back to after the fade is over
-            //enableHurtEffect = false;
             state = ScreenState.FadeInOut;
         }
     }

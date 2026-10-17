@@ -207,6 +207,13 @@ public class PlayerScript : MonoBehaviour
             Debug.Log("Checkpoint set!");
             checkPoint = other.transform;
         }
+
+        if (other.CompareTag("FallDamageBox"))
+        {
+            currentAction = Action.Dead;
+            combat.health = 0;
+            animator.DeathFadeIn();
+        }
     }
     private void OnTriggerStay(Collider other)
     {

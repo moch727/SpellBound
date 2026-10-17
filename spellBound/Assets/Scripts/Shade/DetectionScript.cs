@@ -35,7 +35,7 @@ public class DetectionScript : MonoBehaviour
         if (target != null)
         {
             transform.forward = ((target.transform.position + Vector3.up * 0.5f) - transform.position).normalized;
-            Debug.Log(Physics.Raycast(transform.position, ((target.transform.position + Vector3.up) - transform.position).normalized, out RaycastHit hit2, aggroRange, layersToHit) && hit2.collider.CompareTag("Player"));
+            //Debug.Log(Physics.Raycast(transform.position, ((target.transform.position + Vector3.up) - transform.position).normalized, out RaycastHit hit2, aggroRange, layersToHit) && hit2.collider.CompareTag("Player"));
         }
         //Ignore light layer to prevent the light hitboxes from interfering
 

@@ -37,27 +37,15 @@ public class GroundLight : MonoBehaviour
 
     private void Update()
     {
-
-
         timeElapsed += Time.deltaTime;
         fadePercent = 1 -  timeElapsed / duration;
-        //if(timeElapsed >= duration)
-        //{
+        
         attachedlight.intensity -= fadeSpeed * Time.deltaTime;
         if (sCollider.radius > 1)
         {
             sCollider.radius = fadePercent * 3.5f; //radii
         }
         attachedlight.range = fadePercent * 4.5f;
-        //light.range = fadePercent * radii;
-        //}
-        //For sudden light fade out
-
-        if (attachedlight.intensity < 0.1f)
-        {
-            
-            //sCollider.enabled = false;
-        }
 
         if (attachedlight.intensity <= 0)
         {

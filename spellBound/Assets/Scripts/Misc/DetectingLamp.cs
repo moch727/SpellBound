@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class DetectingLamp : MonoBehaviour
@@ -10,26 +11,12 @@ public class DetectingLamp : MonoBehaviour
     public GateScript gate;
 
     [SerializeField] GameObject fireEffect;
-    private bool triggerEvent;
     private float delay = 2f;
-    private float count;
-
     private void Awake()
     {
         if(fireEffect != null) fireEffect.SetActive(false);
     }
-    private void Update()
-    {
-        if (triggerEvent)
-        {
-            count += Time.deltaTime;
-            if (count > delay)
-            {
-                gate.objectivesComplete = true;
-                triggerEvent = false;
-            }
-        }
-    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Projectile") && other.GetComponent<SpellScript>().owner.CompareTag("Player"))
@@ -47,7 +34,13 @@ public class DetectingLamp : MonoBehaviour
                 }
             }
 
-            triggerEvent = complete;
+            if(complete) StartCoroutine(TriggerComplete());
         }
+    }
+
+    IEnumerator TriggerComplete()
+    {
+        yield return new WaitForSeconds(delay);
+        gate.objectivesComplete = true;
     }
 }

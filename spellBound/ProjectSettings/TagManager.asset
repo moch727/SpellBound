@@ -14,6 +14,7 @@ TagManager:
   - Slope
   - Interactable
   - Checkpoint
+  - FallDamageBox
   layers:
   - Default
   - TransparentFX
