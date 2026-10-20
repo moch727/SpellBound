@@ -122,46 +122,7 @@ public class PlayerCombatComponent : MonoBehaviour
 
             switch (projectile.GetComponent<SpellScript>().spellType)
             {
-                case (SpellScript.SpellType.LightDependant):
-                    //if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<SpellScript>().spellName))) //To prevent spamming of spikes while one is active
-                    //{
-                    //    //(spellObject == null || (spellObject != null && spellObject.GetComponent<SpellScript>().spellType != SpellScript.SpellType.LightDependant))
-                    //    //GameObject spell = null;
-                    //    //for (int i = 0; i < lights.Length; i++)
-                    //    //{
-                    //    //    if (lights[i] != null)
-                    //    //    {
-                    //    //        spell = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation); //what if light is on wall?
-                    //    //        spell.GetComponent<SpellScript>().owner = gameObject;
-                    //    //        spell.GetComponent<SpellScript>().damage *= atkMultiplier;
-                    //    //        for (int j = 0; j < spell.GetComponent<SpellScript>().otherProjectiles.Length; j++)
-                    //    //        {
-                    //    //            spell.GetComponent<SpellScript>().otherProjectiles[j].GetComponent<SpellScript>().owner = gameObject;
-                    //    //        }
-
-                    //    //        lights[i].fadeSpeed = lights[i].GetComponent<Light>().intensity / 2f;
-                    //    //        lights[i].GetComponent<SphereCollider>().radius = 0f;
-                    //    //        incrementLights();
-                    //    //    }
-
-                    //    //}
-                    //    //spellObject = spell;
-
-                    //    //for (int i = 0; i < lights.Length; i++)
-                    //    //{
-                    //    //    if (lights[i] != null)
-                    //    //    {
-                    //    //        spellObject = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation);
-                    //    //        break;
-                    //    //    }
-
-                    //    //}
-
-
-                    //    //spellObject.GetComponent<SpellScript>().owner = gameObject;
-                    //    //spellObject.GetComponent<SpellScript>().damage *= atkMultiplier;
-                    //}
-
+                case SpellScript.SpellType.LightDependant:
                     if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<LightDependentSpellScript>().spell.spellName))) //To prevent spamming of spikes while one is active
                     {
                         spellObject = GameObject.Instantiate(lightDependantObject);

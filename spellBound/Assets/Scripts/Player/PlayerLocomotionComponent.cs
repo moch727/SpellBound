@@ -6,8 +6,6 @@ public class PlayerLocomotionComponent : MonoBehaviour
     private PlayerScript playerScript;
     private Rigidbody rb;
 
-    //private PlayerInput playerInput;
-
     [HideInInspector] public Vector2 horizontalMovementInput;
 
     [SerializeField] private float velocity = 4f;
@@ -21,8 +19,6 @@ public class PlayerLocomotionComponent : MonoBehaviour
     void Start()
     {
         playerScript = GetComponent<PlayerScript>();
-        //playerInput = GetComponent<PlayerInput>();
-
         rb = GetComponent<Rigidbody>();
     }
 

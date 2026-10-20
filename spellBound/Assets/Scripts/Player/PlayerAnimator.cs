@@ -30,15 +30,15 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetFloat("MotionX", 0);
         animator.SetFloat("MotionY", 0);
     }
-    public void animateAim(bool aim)
+    public void animateHold(bool hold)
     {
-        animator.SetBool("Load", aim);
+        animator.SetBool("Hold", hold);
     }
     public void animateAttack()
     {
         animator.SetTrigger("Attack");
         animator.SetInteger("SpellType", combatComponent.currentSpell().GetComponent<SpellScript>().animID);
-        animator.SetBool("Load", false);
+        // animator.SetBool("Load", false);
     }
 
     public void animateDodge()

@@ -24,9 +24,10 @@ public class PlayerScript : MonoBehaviour
     public Action currentAction = Action.None;
     public enum Action
     {
-        None, Attack, Dodge, Interact, CutScene, Dead
+        None, Attack, Dodge, Interact, CutScene, Dead,
     }
 
+    [SerializeField] HoldLightFire holdLightFire;
     //[HideInInspector]
     public UIManager UIManager;
     public GameObject interactable;
@@ -119,11 +120,13 @@ public class PlayerScript : MonoBehaviour
             currentAction = Action.Dodge;
         }
     }
-    public void OnAim(InputAction.CallbackContext context)
+    public void OnHoldLight(InputAction.CallbackContext context)
     {
-        locomotion.faceForward();
-        animator.animateAim(context.started || context.performed);
-        locomotion.camRotation = (context.started || context.performed);
+        Debug.Log("HoldCalled");
+        // locomotion.faceForward();
+        // animator.animateHold(context.started || context.performed);
+        // locomotion.camRotation = context.started || context.performed;
+        // holdLightFire.setFireEffect(!context.canceled);
     }
     public void OnSwitchCam()
     {
