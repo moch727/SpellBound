@@ -5,10 +5,6 @@ public class SpellLocomotionScript : MonoBehaviour
 {
     private Rigidbody rb;
     private SpellScript spellScript;
-
-    private Vector3 initialDestination; //for if object needs to move somewhere before tracking i.e. going up and then falling down
-
-
     [SerializeField] GameObject target;
 
     public float velocity;
@@ -47,10 +43,6 @@ public class SpellLocomotionScript : MonoBehaviour
             }
             particle.Play();
         }
-
-        //main.emitterVelocity = Vector3.zero;
-        //main.startSpeed = 0f;
-        //1.53, 0, 0.4 position
     }
 
     private void FixedUpdate() //useful for physics calculations
@@ -88,8 +80,6 @@ public class SpellLocomotionScript : MonoBehaviour
         this.owner = owner;
         if (owner.CompareTag("Player")) this.owner = owner.GetComponent<PlayerScript>().cam;
 
-        //main.startSpeed = velocity;
-
         switch (spellScript.spellType) {
 
             case SpellScript.SpellType.Construct:
@@ -104,7 +94,6 @@ public class SpellLocomotionScript : MonoBehaviour
 
         transform.parent = null;
         this.owner = owner;
-        //main.emitterVelocity = this.owner.transform.forward * velocity;
     }
 
     private void OnTriggerEnter(Collider other)

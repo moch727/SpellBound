@@ -50,9 +50,9 @@ public class PlayerScript : MonoBehaviour
     {
         effect.transform.position = transform.position;
         bool entered = false;
-        for (int i = 0; i < combat.lights.Length; i++)
+        foreach(GroundLight l in combat.lights)
         {
-            if((combat.lights[i] != null && combat.lights[i].playerEntered) || environmentLight != null)
+            if((l != null && l.playerEntered) || environmentLight != null)
             {
                 entered = true; break;
             }

@@ -42,6 +42,10 @@ public class UIManager : MonoBehaviour
         healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.maxHealth, healthBar.GetComponent<RectTransform>().sizeDelta.y);
         LPBar.GetComponent<RectTransform>().sizeDelta = new Vector2(15 * player.combat.maxLP, LPBar.GetComponent<RectTransform>().sizeDelta.y);
 
+        foreach(Slider s in rings)
+        {
+            s.value = 0f;
+        }
 
         //lpBar.setMaxValue(player.combat.maxLP);
         //extraLPBar.setMaxValue(player.combat.maxLP);
@@ -77,13 +81,15 @@ public class UIManager : MonoBehaviour
 
         xpCOllected.text = ((int)player.combat.XP).ToString();
 
-        for (int i = 0; i < rings.Length; i++)
+        int i = 0;
+        foreach(GroundLight l in player.combat.lights)
         {
-            if (player.combat.lights[i] == null) rings[i].value = 0;
+            if (l == null) rings[i].value = 0;
             else
             {
-                rings[i].value = player.combat.lights[i].fadePercent;
+                rings[i].value = l.fadePercent;
             }
+            i++;
         }
     }
 

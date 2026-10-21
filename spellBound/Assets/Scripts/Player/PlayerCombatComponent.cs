@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -24,8 +27,8 @@ public class PlayerCombatComponent : MonoBehaviour
 
     private float atkMultiplier = 1;
 
-
-    public GroundLight[] lights = new GroundLight[3];
+    public Queue<GroundLight> lights = new Queue<GroundLight>();
+    private const int MAXLIGHTS = 3;
     public int lightNums;
     private float timeElapsed;
 
@@ -125,8 +128,20 @@ public class PlayerCombatComponent : MonoBehaviour
                 case SpellScript.SpellType.LightDependant:
                     if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<LightDependentSpellScript>().spell.spellName))) //To prevent spamming of spikes while one is active
                     {
+                        Transform[] lightTransforms = new Transform[lightNums];
+                        int i = 0;
+                        foreach(GroundLight l in lights)
+                        {
+                            if(l != null) 
+                            {
+                                lightTransforms[i] = l.transform;
+                                l.clear();
+                                i++;
+                            }
+                        }
+
                         spellObject = GameObject.Instantiate(lightDependantObject);
-                        spellObject.GetComponent<LightDependentSpellScript>().CreateSpells(playerScript, projectile, lights, projectile.GetComponent<SpellScript>().damage * atkMultiplier);
+                        spellObject.GetComponent<LightDependentSpellScript>().CreateSpells(gameObject, projectile, lightTransforms, projectile.GetComponent<SpellScript>().damage * atkMultiplier);
 
                         reduceLP(projectile);
                     }
@@ -184,23 +199,19 @@ public class PlayerCombatComponent : MonoBehaviour
 
     public void addLight(GameObject o)
     {
-        int count = 0;
-        for (int i = 0; i < lights.Length; i++)
+        if (lightNums >= MAXLIGHTS)
         {
-            if (lights[i] != null) count++;
+            removeLight();
         }
-        if (count != lightNums) lightNums = count;
-
-        if (lightNums >= 3)
-        {
-            //incrementLights();
-            lights[0].fadeSpeed = 50;
-            lights[0] = null;
-            incrementLights();
-            lightNums--;
-        }
-        lights[lightNums] = o.GetComponent<GroundLight>();
+        lights.Enqueue(o.GetComponent<GroundLight>());
         lightNums++;
+    }
+
+    private void removeLight()
+    {
+        GroundLight light = lights.Dequeue();
+        if(light != null) light.clear();
+        lightNums--;
     }
 
     private void UpdateLightTick()
@@ -218,13 +229,9 @@ public class PlayerCombatComponent : MonoBehaviour
     }
     private void incrementLights()
     {
-        for (int i = 0; i < lights.Length - 1; i++)
+        while(lightNums > 0 && lights.Peek() == null)
         {
-            if (lights[i] == null)
-            {
-                lights[i] = lights[i + 1];
-                lights[i + 1] = null;
-            }
+            removeLight();
         }
     }
 

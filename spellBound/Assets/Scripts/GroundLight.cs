@@ -54,6 +54,12 @@ public class GroundLight : MonoBehaviour
         }
     }
 
+    public void clear()  //For removing light
+    {
+        fadeSpeed = 50f;
+        GetComponent<SphereCollider>().radius = 0f;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         transform.up = collision.contacts[0].normal;
