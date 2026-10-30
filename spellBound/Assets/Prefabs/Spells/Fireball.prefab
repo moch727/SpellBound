@@ -9803,6 +9803,7 @@ GameObject:
   - component: {fileID: 6234308052345244818}
   - component: {fileID: 3932691787784589092}
   - component: {fileID: 4913176448044739597}
+  - component: {fileID: 8631122986527959984}
   m_Layer: 0
   m_Name: Fireball
   m_TagString: Projectile
@@ -14765,6 +14766,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8631122986527959984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3832561319160043877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8635ce99d84d150428aaf9a529cac049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightPrefab: {fileID: 2255429620553930700, guid: 04588f82c2da80745a83da1a1ec1feed, type: 3}
 --- !u!1 &5672753402325663664
 GameObject:
   m_ObjectHideFlags: 0

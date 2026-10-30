@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class SpellLocomotionScript : MonoBehaviour
+public class SpellLocomotionScript : MonoBehaviour, ISpellBehaviour
 {
     private Rigidbody rb;
     private SpellScript spellScript;
@@ -17,13 +17,15 @@ public class SpellLocomotionScript : MonoBehaviour
     public string pivot;
 
     [HideInInspector]
-    public GameObject owner = null;
+    public GameObject owner;
     public bool complete;
 
     void Awake()
     { 
         rb = GetComponent<Rigidbody>();
         spellScript = GetComponent<SpellScript>();
+
+        
         rb.useGravity = useGravity;
         particle = GetComponent<ParticleSystem>();
         if(particle != null)
@@ -75,7 +77,7 @@ public class SpellLocomotionScript : MonoBehaviour
 
     }
 
-    public void startMotion(GameObject owner)
+    public void triggerSpell(GameObject owner)
     {
         this.owner = owner;
         if (owner.CompareTag("Player")) this.owner = owner.GetComponent<PlayerScript>().cam;
@@ -93,7 +95,6 @@ public class SpellLocomotionScript : MonoBehaviour
         }
 
         transform.parent = null;
-        this.owner = owner;
     }
 
     private void OnTriggerEnter(Collider other)

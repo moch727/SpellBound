@@ -14,8 +14,6 @@ public class PlayerLocomotionComponent : MonoBehaviour
     [SerializeField] float maxSlopeAngle;
     private RaycastHit hit;
 
-    public bool camRotation = true;
-
     void Start()
     {
         playerScript = GetComponent<PlayerScript>();
@@ -24,7 +22,8 @@ public class PlayerLocomotionComponent : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (camRotation) //camRotation
+        //camRotation
+        if (playerScript.currentAction != PlayerScript.Action.CutScene || playerScript.currentAction != PlayerScript.Action.Interact) //camRotation
         {
             faceForward();
         }

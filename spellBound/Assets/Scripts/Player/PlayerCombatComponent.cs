@@ -4,10 +4,13 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.XR;
 
 public class PlayerCombatComponent : MonoBehaviour
 {
     private PlayerScript playerScript;
+    public EntityHealthScript healthManager;
 
     public GameObject[] spells;
     [SerializeField] int numOfSpells = 1;
@@ -22,7 +25,7 @@ public class PlayerCombatComponent : MonoBehaviour
 
     private bool spellActive = false;
 
-    public int maxHealth;
+    // public int maxHealth;
     public int maxLP;
 
     private float atkMultiplier = 1;
@@ -31,9 +34,6 @@ public class PlayerCombatComponent : MonoBehaviour
     private const int MAXLIGHTS = 3;
     public int lightNums;
     private float timeElapsed;
-
-    //[HideInInspector]
-    public int health;
     public int LP;
 
     [Header("Stats")]
@@ -51,8 +51,12 @@ public class PlayerCombatComponent : MonoBehaviour
     void Awake()
     {
         playerScript = GetComponent<PlayerScript>();
-        health = maxHealth;
+        healthManager = GetComponent<EntityHealthScript>();
         LP = maxLP;
+    }
+    void FixedUpdate()
+    {
+        if(healthManager.getHealth() <= 0) handleDeath();
     }
     private void Update()
     {
@@ -88,19 +92,6 @@ public class PlayerCombatComponent : MonoBehaviour
         return spellActive;
     }
 
-    public void reduceHealth(int reduction)
-    {
-        if (health > 0)
-        {
-            health -= reduction;
-            if (health <= 0)
-            {
-                health = 0;
-                handleDeath();
-            }
-        }
-    }
-
     private void handleDeath()
     {
         // playerScript.currentAction = PlayerScript.Action.Dead;
@@ -109,13 +100,13 @@ public class PlayerCombatComponent : MonoBehaviour
 
     public void ResetStats()
     {
-        health = maxHealth;
+        healthManager.initialize();
         LP = maxLP;
         XP = 0;
     }
     public void cast()
     {
-        if (health >= spells[index].GetComponent<SpellScript>().lightcost)
+        if (healthManager.getHealth() >= spells[index].GetComponent<SpellScript>().lightcost)
         {
             GameObject projectile;
             projectile = spells[index];
@@ -168,23 +159,27 @@ public class PlayerCombatComponent : MonoBehaviour
 
         }
     }
-
+    public void reduceHealth(int damage)
+    {
+        healthManager.reduceHealth(damage);
+    }
     private void reduceLP(GameObject projectile)
     {
-        if (health > 0)
+        if (healthManager.getHealth() > 0)
         {
             LP -= projectile.GetComponent<SpellScript>().lightcost;
             if (LP < 0)
             {
-                health += LP;
+                healthManager.reduceHealth(Mathf.Abs(LP));
+                // health += LP;
                 LP = 0;
             }
 
-            if (health <= 0)
-            {
-                handleDeath();
-                health = 0;
-            }
+            // if (health <= 0)
+            // {
+            //     handleDeath();
+            //     health = 0;
+            // }
         }
 
     }
@@ -221,7 +216,7 @@ public class PlayerCombatComponent : MonoBehaviour
             timeElapsed += Time.deltaTime;
             if (timeElapsed >= 1) //1 is lp recovery interval
             {
-                if (health < maxHealth) health += 1;
+                if (healthManager.getHealthPercent() < 1) healthManager.increaseHealth(1);
                 else if (LP < maxLP) LP += 1; //combat.maxExtraLP
                 timeElapsed = 0f;
             }
@@ -246,15 +241,25 @@ public class PlayerCombatComponent : MonoBehaviour
 
             XP -= requiredXP;
 
-            float newMaxHealth = (float)maxHealth * (Mathf.Pow(1f + (float)(Vitality / 10f), 2f));
-            maxHealth = (int)newMaxHealth;
-            health = maxHealth;
+            float newMaxHealth = (float) healthManager.getMAXHealth() * Mathf.Pow(1f + (float)(Vitality / 10f), 2f);
+            healthManager.setMaxHealth((int) newMaxHealth);
+            healthManager.initialize();
 
             atkMultiplier = Mathf.Log(Potency) + 1f;
 
             requiredXP *= Mathf.Pow(1f + (float)(level / 10f), 3f);
             //requiredXP *= (1 + (level / 10));
             //change required xp for next level
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("FallDamageBox"))
+        {
+            playerScript.currentAction = PlayerScript.Action.Dead;
+            healthManager.reduceHealth(int.MaxValue);
+            playerScript.animator.DeathFadeIn();
         }
     }
 }

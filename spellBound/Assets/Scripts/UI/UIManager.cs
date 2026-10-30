@@ -39,16 +39,13 @@ public class UIManager : MonoBehaviour
         interactText.SetActive(false);
         deathUI.gameObject.SetActive(false);
 
-        healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.maxHealth, healthBar.GetComponent<RectTransform>().sizeDelta.y);
+        healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.healthManager.getMAXHealth(), healthBar.GetComponent<RectTransform>().sizeDelta.y);
         LPBar.GetComponent<RectTransform>().sizeDelta = new Vector2(15 * player.combat.maxLP, LPBar.GetComponent<RectTransform>().sizeDelta.y);
 
         foreach(Slider s in rings)
         {
             s.value = 0f;
         }
-
-        //lpBar.setMaxValue(player.combat.maxLP);
-        //extraLPBar.setMaxValue(player.combat.maxLP);
     }
     void LateUpdate()
     {
@@ -73,10 +70,10 @@ public class UIManager : MonoBehaviour
 
     void UpdateStatBars()
     {
-        healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.maxHealth, healthBar.GetComponent<RectTransform>().sizeDelta.y);
+        healthBar.GetComponent<RectTransform>().sizeDelta = new Vector2(10 * player.combat.healthManager.getMAXHealth(), healthBar.GetComponent<RectTransform>().sizeDelta.y);
         LPBar.GetComponent<RectTransform>().sizeDelta = new Vector2(15 * player.combat.maxLP, LPBar.GetComponent<RectTransform>().sizeDelta.y);
 
-        healthBar.value = Mathf.MoveTowards(healthBar.value, (float)player.combat.health / (float)player.combat.maxHealth, 2f * Time.deltaTime);
+        healthBar.value = Mathf.MoveTowards(healthBar.value, player.combat.healthManager.getHealthPercent(), 2f * Time.deltaTime);
         LPBar.value = Mathf.MoveTowards(LPBar.value, (float)player.combat.LP / (float)player.combat.maxLP, 2f * Time.deltaTime);
 
         xpCOllected.text = ((int)player.combat.XP).ToString();
@@ -107,8 +104,8 @@ public class UIManager : MonoBehaviour
 
     public void ExitFurnaceBox()
     {
-        player.animator.animateTrigger("Resume");
-
+        // player.animator.animateTrigger("Resume");
+        player.disableMenuState();
         Time.timeScale = 1;
         Cursor.lockState = CursorLockMode.Locked;
     }

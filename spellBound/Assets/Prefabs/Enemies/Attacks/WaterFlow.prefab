@@ -15,9 +15,10 @@ GameObject:
   - component: {fileID: 6272930592277344930}
   - component: {fileID: 6022355188679400659}
   - component: {fileID: 4073811438098741755}
+  - component: {fileID: 4143983410568127265}
   m_Layer: 0
   m_Name: WaterFlow
-  m_TagString: Interactable
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4987,7 +4988,6 @@ MonoBehaviour:
   targetLocation: {x: 0, y: 0, z: 0}
   particleEffect: {fileID: 8307846777568421957}
   hitEffect: {fileID: 8294947810415399850, guid: 7a16f43b4abbc0846a15aa17f7ba39bd, type: 3}
-  destroyed: 0
 --- !u!135 &4073811438098741755
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5009,6 +5009,21 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &4143983410568127265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1743371090239950974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2074ff17bfcb81409de7604e8576d1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MAXHEALTH: 1
+  INITIALDEFENSE: 0
+  health: 0
 --- !u!1 &1951661414253509156
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,7 +24,12 @@ public class PlayerAnimator : MonoBehaviour
             animator.SetFloat("MotionY", locomotionComponent.horizontalMovementInput.y);
         }
     }
-
+    public void ResetAnimation()
+    {
+        GetComponent<Animator>().Rebind();
+        GetComponent<Animator>().Update(0f);
+        setToNeutral();
+    }
     public void setToNeutral()
     {
         animator.SetFloat("MotionX", 0);
@@ -61,15 +66,10 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetTrigger(action);
     }
-
-    public void TriggerInteract(string interaction)
-    {
-        script.enableInteractionForObject(interaction);
-    }
     public void ResetState()
     {
         script.currentAction = PlayerScript.Action.None;
-        script.locomotion.camRotation = true;
+        // locomotionComponent.camRotation = true;
 
         script.ResetCam();
     }

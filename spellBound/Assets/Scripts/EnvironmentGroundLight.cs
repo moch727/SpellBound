@@ -13,17 +13,18 @@ public class EnvironmentGroundLight : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerCombatComponent combat = other.GetComponent<PlayerCombatComponent>();
-
+            // PlayerCombatComponent combat = other.GetComponent<PlayerCombatComponent>();
+            PlayerScript player = other.GetComponent<PlayerScript>();
             if (recoverLP)
             {
-                timeElapsed += Time.deltaTime;
-                if (timeElapsed >= interval) //1 is lp recovery interval
-                {
-                    if (combat.health < combat.maxHealth) combat.health += 1;
-                    else if (combat.LP < combat.maxLP) combat.LP += 1; //combat.maxExtraLP
-                    timeElapsed = 0f;
-                }
+                player.inLight = true;
+                // timeElapsed += Time.deltaTime;
+                // if (timeElapsed >= interval) //1 is lp recovery interval
+                // {
+                //     if (combat.health < combat.maxHealth) combat.health += 1;
+                //     else if (combat.LP < combat.maxLP) combat.LP += 1; //combat.maxExtraLP
+                //     timeElapsed = 0f;
+                // }
             }
         }
     }

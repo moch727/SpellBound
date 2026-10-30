@@ -4,6 +4,7 @@ using UnityEngine.AI;
 public class GolemScript : MonoBehaviour
 {
     private AIScript AIScript;
+    private EntityHealthScript healthManager;
     private Animator animator;
 
     [SerializeField] int guardChance; //out of 10
@@ -32,6 +33,7 @@ public class GolemScript : MonoBehaviour
     {
         AIScript = GetComponent<AIScript>();
         animator = GetComponent<Animator>();
+        healthManager = GetComponent<EntityHealthScript>();
 
         startPosition = mud.transform.position;
 
@@ -43,8 +45,8 @@ public class GolemScript : MonoBehaviour
         ResetWavePhase();
 
         barrierEffect = AIScript.spellObject.GetComponent<ParticleSystem>();
-        prevDefense = AIScript.defense;
-        AIScript.defense = 0.95f;
+        prevDefense = healthManager.getDefense();
+        healthManager.setDefense(0.95f);
         for (int i = 0; i < srcList.Length; i++)
         {
             Vector3 randomPosition = transform.position;
@@ -119,7 +121,7 @@ public class GolemScript : MonoBehaviour
             if (randomValue <= guardChance)
             {
                 animator.SetBool("Guard", true);
-                AIScript.defense = 0.5f;
+                healthManager.setDefense(0.5f);
             }
             runSelected = true;
         }
@@ -127,7 +129,7 @@ public class GolemScript : MonoBehaviour
         if(!animator.GetBool("Walk") || AIScript.target == null)
         {
             animator.SetBool("Guard", false);
-            AIScript.defense = 0f;
+            healthManager.setDefense(0f);
             runSelected = false;
         }
     }
@@ -156,11 +158,11 @@ public class GolemScript : MonoBehaviour
     {
         if (i == 0)
         {
-            AIScript.defense = prevDefense + 0.2f;
+            healthManager.setDefense(prevDefense + 0.2f);
         }
         else
         {
-            AIScript.defense = prevDefense;
+            healthManager.setDefense(prevDefense);
         }
 
     }

@@ -51,12 +51,13 @@ public class AIScript : MonoBehaviour
     [HideInInspector] public GameObject spellObject;
     private float maxAttackRange;
 
-    public float health;
-    public float defense; //10% defense means 90% of the damage goes thru
+    private EntityHealthScript healthManager;
+    // public float health;
+    // public float defense; //10% defense means 90% of the damage goes thru
 
     public float baseXP;
 
-    [HideInInspector] public float maxHealth;
+    // [HideInInspector] public float maxHealth;
 
     [SerializeField] Transform attachPoint;
     [SerializeField] Transform[] waypoints;
@@ -93,7 +94,9 @@ public class AIScript : MonoBehaviour
 
     void Awake()
     {
-        maxHealth = health;
+        // maxHealth = health;
+        healthManager = GetComponent<EntityHealthScript>();
+        healthManager.initialize();
 
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
@@ -129,6 +132,11 @@ public class AIScript : MonoBehaviour
             healthUI.meleeAIScript = null;
         }
 
+        if (healthManager.getHealth() <= 0) //Reset everything for death
+        {
+            prepareForDeath();
+        }
+
         if (!death)
         {
             checkForDetection();
@@ -152,7 +160,7 @@ public class AIScript : MonoBehaviour
                 else if (currentAttack == null)
                 {
                     selectAttack(distanceToTarget);
-                    Debug.Log(currentAttack.attackName);
+                    // Debug.Log(currentAttack.attackName);
                 }
 
                 if (distanceToTarget > agent.stoppingDistance)
@@ -168,7 +176,7 @@ public class AIScript : MonoBehaviour
 
                     if (state == AIState.None) //verify if center of ai is blocked by obstacle? also check if ai is facing player
                     {
-                        Debug.Log("triggerAttack");
+                        // Debug.Log("triggerAttack");
                         animator.SetBool("Walk", false);
                         animator.SetInteger("AttackNum", currentAttack.animID);
                         animator.SetTrigger("Attack");
@@ -204,6 +212,10 @@ public class AIScript : MonoBehaviour
 
     }
 
+    public EntityHealthScript getHealthManager()
+    {
+        return healthManager;
+    }
     private void selectAttack(float distanceToTarget)
     {
         int validAttack = 0;
@@ -237,25 +249,22 @@ public class AIScript : MonoBehaviour
         agent.stoppingDistance = currentAttack.attackRange;
 
     }
-    public void reduceHealth(int reduction)
+
+    private void prepareForDeath()
     {
-        health -=  (reduction * (1-defense));
-        if (health <= 0) //Reset everything for death
+        agent.speed = 0;
+        GetComponent<Collider>().enabled = false;
+
+        animator.SetBool("Walk", false);
+        animator.ResetTrigger("Attack");
+        animator.SetBool("Death", true);
+
+        if (!mud.activeSelf)
         {
-            agent.speed = 0;
-            GetComponent<Collider>().enabled = false;
-
-            animator.SetBool("Walk", false);
-            animator.ResetTrigger("Attack");
-            animator.SetTrigger("Death");
-
-            if (!mud.activeSelf)
-            {
-                mud.transform.localScale = Vector3.zero;
-                mud.SetActive(true);
-            }
-            death = true;
+            mud.transform.localScale = Vector3.zero;
+            mud.SetActive(true);
         }
+        death = true;
     }
 
     public float getDamage()
@@ -291,19 +300,7 @@ public class AIScript : MonoBehaviour
     }
     private bool reachedDestination()
     {
-        if (Vector3.Distance(transform.position, agent.destination) < 0.1f)
-        {
-            return true;
-        }
-        return false;
-        //if(!agent.pathPending && agent.remainingDistance <= 0.5f)
-        //{
-        //    if(!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
-        //    {
-        //        return true;
-        //    }
-        //}
-        //return false;
+        return Vector3.Distance(transform.position, agent.destination) < 0.1f;
     }
     private void checkForDetection()
     {
@@ -402,9 +399,7 @@ public class AIScript : MonoBehaviour
                 detection.isVisible = true;
 
                 checkForDetection();
-                //target = other.GetComponent<SpellScript>().owner;
             }
-            reduceHealth((int)other.GetComponent<SpellScript>().damage);
         }
     }
 }

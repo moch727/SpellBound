@@ -13,7 +13,6 @@ public class ShieldScript : MonoBehaviour
     void Start()
     {
         effect = GameObject.Instantiate(spawnEffect, transform.position + transform.up * 0.25f, transform.rotation).GetComponent<ParticleSystem>();
-        GetComponent<SpellScript>().damage = 0;
 
         if (effect.transform.rotation.eulerAngles.x >= 90 || effect.transform.rotation.eulerAngles.z >= 90)
         {
@@ -24,7 +23,6 @@ public class ShieldScript : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(-(GetComponent<SpellScript>().owner.transform.position - transform.position).normalized);
         }
 
-        //transform.rotation = Quaternion.LookRotation(-new Vector3(GetComponent<SpellScript>().owner.transform.position.x - transform.position.x, 0, GetComponent<SpellScript>().owner.transform.position.z - transform.position.z).normalized);
         transform.Rotate(Vector3.right * -90f);
 
         endPosition = transform.position - transform.forward * 0.5f;
