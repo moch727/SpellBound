@@ -4,6 +4,7 @@ using UnityEngine.AI;
 public class GolemScript : MonoBehaviour
 {
     private AIScript AIScript;
+    private EnemyCombat enemyCombat;
     private EntityHealthScript healthManager;
     private Animator animator;
 
@@ -34,6 +35,7 @@ public class GolemScript : MonoBehaviour
         AIScript = GetComponent<AIScript>();
         animator = GetComponent<Animator>();
         healthManager = GetComponent<EntityHealthScript>();
+        enemyCombat = GetComponent<EnemyCombat>();
 
         startPosition = mud.transform.position;
 
@@ -44,7 +46,7 @@ public class GolemScript : MonoBehaviour
     {
         ResetWavePhase();
 
-        barrierEffect = AIScript.spellObject.GetComponent<ParticleSystem>();
+        barrierEffect = enemyCombat.getSpell().GetComponent<ParticleSystem>();
         prevDefense = healthManager.getDefense();
         healthManager.setDefense(0.95f);
         for (int i = 0; i < srcList.Length; i++)

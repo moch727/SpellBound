@@ -113,6 +113,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Detect
       objectReference: {fileID: 0}
+    - target: {fileID: 2802855126228422831, guid: 81896a7329f0ac948a2ab4424184143b, type: 3}
+      propertyPath: m_Radius
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 5598244895961723187, guid: 81896a7329f0ac948a2ab4424184143b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -329,43 +333,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.5700002
+      value: 81.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.11
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.4000006
+      value: 18.8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7138667
+      value: 0.1385059
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.0011310887
+      value: -0.0033068913
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.7002468
+      value: -0.99033695
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.006890311
+      value: -0.0061498154
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -0.46
+      value: -0.75
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -88.894
+      value: -164.079
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -0.654
+      value: 0.278
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       propertyPath: m_Name
@@ -420,6 +424,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a03b8d456bf40804890877bf17916bff, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4088689065731434755}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a03b8d456bf40804890877bf17916bff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6486599785236738530}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a03b8d456bf40804890877bf17916bff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8525299576537794525}
   m_SourcePrefab: {fileID: 100100000, guid: a03b8d456bf40804890877bf17916bff, type: 3}
 --- !u!1 &1561967219276042137 stripped
 GameObject:
@@ -550,11 +560,8 @@ MonoBehaviour:
   spellObject: {fileID: 0}
   baseXP: 0
   attachPoint: {fileID: 4421137487471004608}
-  waypoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  waypoints: []
+  agent: {fileID: 0}
   patrolWalkSpeed: 1
   combatWalkSpeed: 2
   state: 1
@@ -578,6 +585,46 @@ MonoBehaviour:
   MAXHEALTH: 30
   INITIALDEFENSE: 0
   health: 20
+--- !u!114 &6486599785236738530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561967219276042137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c63a6af409650494abf2551465b15b91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackList:
+  - attackName: Swipe
+    animID: 0
+    attackRange: 2
+    attackDamage: 5
+    meleeDamageBox: {fileID: 5308250024359349991}
+  - attackName: ShadowBall
+    animID: 1
+    attackRange: 7
+    attackDamage: 0
+    meleeDamageBox: {fileID: 0}
+  damageBox: {fileID: 5308250024359349991}
+  spellObject: {fileID: 0}
+  attachPoint: {fileID: 4421137487471004608}
+  baseXP: 50
+  combatWalkSpeed: 2
+--- !u!114 &8525299576537794525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561967219276042137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c18fae656d1d1f408f51018886d05c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &2226722451473077539 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a03b8d456bf40804890877bf17916bff, type: 3}
