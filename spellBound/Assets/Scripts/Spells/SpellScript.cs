@@ -22,7 +22,6 @@ public class SpellScript : MonoBehaviour, IHitbox
 
     public float damage;
     public int lightcost;
-    [SerializeField] GameObject lightPrefab;
 
     //[HideInInspector]
     public GameObject owner;

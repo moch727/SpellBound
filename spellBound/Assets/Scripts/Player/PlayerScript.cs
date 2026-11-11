@@ -50,15 +50,24 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         effect.transform.position = transform.position;
-        bool entered = false;
-        foreach(GroundLight l in combat.lights)
+
+        if(environmentLight != null)
         {
-            if((l != null && l.playerEntered) || environmentLight != null)
-            {
-                entered = true; break;
-            }
+            inLight = true;
         }
-        inLight = entered;
+        else
+        {
+            bool entered = false;
+            foreach (GroundLight l in combat.lights)
+            {
+                if (l != null && l.playerEntered)
+                {
+                    entered = true; break;
+                }
+            }
+            inLight = entered;
+        }
+
         effect.SetActive(inLight);
 
         //if (currentAction == Action.CutScene) animator.setToNeutral();

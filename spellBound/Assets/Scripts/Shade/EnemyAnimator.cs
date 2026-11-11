@@ -80,12 +80,10 @@ public class EnemyAnimator : MonoBehaviour
     public void Terminate()
     {
         aiScript.animateMud();
-        if (aiScript.hasMud())
+        if (!aiScript.hasMud())
         {
             aiScript.target.GetComponent<PlayerCombatComponent>().XP += enemyCombat.baseXP; //Multiply by level to scale
             Destroy(gameObject);
         }
-        //if (mud != null) mud.SetActive(true);
-        //Destroy(gameObject);
     }
 }
