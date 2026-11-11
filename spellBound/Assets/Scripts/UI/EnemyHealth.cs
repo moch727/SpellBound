@@ -15,7 +15,7 @@ public class EnemyHealth : MonoBehaviour
         //cam = Camera.main;
         if (meleeAIScript != null)
         {
-            bar.setMaxValue(meleeAIScript.maxHealth);
+            // bar.setMaxValue(meleeAIScript.getHealthManager().getMAXHealth());
             //if (textMeshPro != null) textMeshPro.GetComponent<TextMeshProUGUI>().text = meleeAIScript.name;
         }
 
@@ -24,16 +24,14 @@ public class EnemyHealth : MonoBehaviour
 
     public void SetMax()
     {
-        if (meleeAIScript != null) bar.setMaxValue(meleeAIScript.maxHealth);
+        if (meleeAIScript != null) bar.setMaxValue(meleeAIScript.getHealthManager().getMAXHealth());
         if (textMeshPro != null) textMeshPro.GetComponent<TextMeshProUGUI>().text = meleeAIScript.enemyName; 
     }
     void LateUpdate()
     {
-        if (meleeAIScript != null) bar.setValue(meleeAIScript.health);
+        if (meleeAIScript != null) bar.setValue(meleeAIScript.getHealthManager().getHealth());
         else gameObject.SetActive(false);
-
-
-
+        
         if (cam != null && meleeAIScript.enemyName == "") transform.rotation = Quaternion.LookRotation(transform.position - cam.transform.position);
     }
 }

@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using NUnit.Framework.Internal;
 using Unity.Cinemachine;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 using UnityEngine.AI;
@@ -15,6 +16,9 @@ public class AIScript : MonoBehaviour
     public string enemyName;
 
     [SerializeField] DetectionScript detection;
+    private EntityHealthScript healthManager;
+    private EnemyAnimator enemyAnimator;
+    private EnemyCombat enemyCombat;
 
     //Enum for type of ai? (i.e ranged, melee, balanced, etc.)
     public enum AIBehaviour
@@ -28,49 +32,13 @@ public class AIScript : MonoBehaviour
     //If ranged, it should try to stay away, unless player in melee range
 
     [SerializeField] AIBehaviour type;
-
-    [System.Serializable]
-    public class AttackData
-    {
-        public string attackName;
-        public int animID;
-        public int attackRange;
-        public int attackDamage;
-
-        public MeleeHitbox meleeDamageBox;
-    }
-
-    [SerializeField] AttackData[] attackList;
-    //[HideInInspector] 
-    private AttackData currentAttack = null;
-    private AttackData previousAttack = null;
-
-    //For melee enemies
-    [SerializeField] MeleeHitbox damageBox;
-    //For ranged enemies
-    [HideInInspector] public GameObject spellObject;
-    private float maxAttackRange;
-
-    public float health;
-    public float defense; //10% defense means 90% of the damage goes thru
-
-    public float baseXP;
-
-    [HideInInspector] public float maxHealth;
-
-    [SerializeField] Transform attachPoint;
     [SerializeField] Transform[] waypoints;
     private int index = 0;
     private Vector3 startPosition;
     private Quaternion startRotation;
-
-    private Rigidbody rb;
-    private Animator animator;
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
 
     public float patrolWalkSpeed;
-    public float combatWalkSpeed;
-
     public enum AIState
     {
         Standby, None, Attack, Pursue
@@ -93,13 +61,13 @@ public class AIScript : MonoBehaviour
 
     void Awake()
     {
-        maxHealth = health;
+        enemyAnimator = GetComponent<EnemyAnimator>();
+        enemyCombat = GetComponent<EnemyCombat>();
+        healthManager = GetComponent<EntityHealthScript>();
+        healthManager.initialize();
 
-        rb = GetComponent<Rigidbody>();
-        animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
 
-        maxAttackRange = attackList[attackList.Length - 1].attackRange;
         if (waypoints.Length == 0)
         {
             
@@ -129,6 +97,11 @@ public class AIScript : MonoBehaviour
             healthUI.meleeAIScript = null;
         }
 
+        if (healthManager.getHealth() <= 0) //Reset everything for death
+        {
+            prepareForDeath();
+        }
+
         if (!death)
         {
             checkForDetection();
@@ -140,25 +113,22 @@ public class AIScript : MonoBehaviour
             else if (canMove) //Target found and can move
             {
                 agent.SetDestination(target.transform.position);
-                agent.speed = combatWalkSpeed;
+                agent.speed = enemyCombat.getCombatWalkSpeed();
                 float distanceToTarget = Vector3.Distance(gameObject.transform.position, target.transform.position);
-                //Debug.Log(distanceToTarget);
-                //animator.SetInteger("WalkNum", 1);
 
-                if (distanceToTarget > maxAttackRange + 0.1f) //If distance is too far for ai to attack
+                if (distanceToTarget > enemyCombat.getMaxAttackRange() + 0.1f) //If distance is too far for ai to attack
                 {
-                    currentAttack = null;
+                    enemyCombat.setCurrentAttack(null);
                 }
-                else if (currentAttack == null)
+                else if (enemyCombat.getCurrentAttack() == null)
                 {
-                    selectAttack(distanceToTarget);
-                    Debug.Log(currentAttack.attackName);
+                    agent.stoppingDistance = enemyCombat.selectAttack(distanceToTarget, type).attackRange;
                 }
 
                 if (distanceToTarget > agent.stoppingDistance)
                 {
                     //agent.angularSpeed = 120f;
-                    animator.SetBool("Walk", true);
+                    enemyAnimator.animateWalk(true);
                 }
                 else
                 {
@@ -168,11 +138,7 @@ public class AIScript : MonoBehaviour
 
                     if (state == AIState.None) //verify if center of ai is blocked by obstacle? also check if ai is facing player
                     {
-                        Debug.Log("triggerAttack");
-                        animator.SetBool("Walk", false);
-                        animator.SetInteger("AttackNum", currentAttack.animID);
-                        animator.SetTrigger("Attack");
-
+                        enemyAnimator.animateAttack();
                         state = AIState.Attack;
                     }
                 }
@@ -185,10 +151,9 @@ public class AIScript : MonoBehaviour
                 if (startShrink)
                 {
                     mud.transform.localScale = Vector3.Slerp(mud.transform.localScale, Vector3.zero, Time.deltaTime);
-                    //Debug.Log(target.tag);
                     if (mud.transform.localScale.x <= 0.1f)
                     {
-                        target.GetComponent<PlayerCombatComponent>().XP += baseXP; //Multiply by level to scale
+                        enemyCombat.dropXP();
                         Destroy(gameObject);
                     }
                 }
@@ -204,77 +169,43 @@ public class AIScript : MonoBehaviour
 
     }
 
-    private void selectAttack(float distanceToTarget)
+    public EntityHealthScript getHealthManager()
     {
-        int validAttack = 0;
-        int shortestAttack = 0;
-
-        if(attackList.Length == 1)
-        {
-            validAttack = 1;
-        }
-        else
-        {
-            while (validAttack < attackList.Length)
-            {
-                if (attackList[validAttack].attackRange > distanceToTarget) break;
-                validAttack++;
-            }
-
-
-            if (type == AIBehaviour.Ranged && distanceToTarget > 3f)
-            {
-                while (attackList[shortestAttack].attackRange < 3f)
-                {
-                    shortestAttack++;
-                }
-            }
-        }
-
-
-        //Debug.Log(validAttack);
-        currentAttack = attackList[UnityEngine.Random.Range(shortestAttack, validAttack)];
-        agent.stoppingDistance = currentAttack.attackRange;
-
+        return healthManager;
     }
-    public void reduceHealth(int reduction)
+
+    private void prepareForDeath()
     {
-        health -=  (reduction * (1-defense));
-        if (health <= 0) //Reset everything for death
+        agent.speed = 0;
+        GetComponent<Collider>().enabled = false;
+
+        enemyAnimator.animateDeath();
+
+        if (!mud.activeSelf)
         {
-            agent.speed = 0;
-            GetComponent<Collider>().enabled = false;
-
-            animator.SetBool("Walk", false);
-            animator.ResetTrigger("Attack");
-            animator.SetTrigger("Death");
-
-            if (!mud.activeSelf)
-            {
-                mud.transform.localScale = Vector3.zero;
-                mud.SetActive(true);
-            }
-            death = true;
+            mud.transform.localScale = Vector3.zero;
+            mud.SetActive(true);
         }
+        death = true;
     }
 
     public float getDamage()
     {
-        return currentAttack.attackDamage;
+        return enemyCombat.getCurrentAttack().attackDamage;
     }
     //Pathfinding
     private void patrol()
     {
-        animator.SetBool("Walk", true);
-        //animator.SetInteger("WalkNum", 0);
+        enemyAnimator.animateWalk(true);
+
         agent.stoppingDistance = 0;
         agent.speed = patrolWalkSpeed;
         agent.SetDestination(waypoints.Length > 0 ? waypoints[index].position : startPosition);
 
         if (reachedDestination())
         {
-            animator.SetBool("Walk", false);
-            if(waypoints.Length > 0)
+            enemyAnimator.animateWalk(false);
+            if (waypoints.Length > 0)
             {
                 if (index + 1 >= waypoints.Length) index = 0;
                 else index++;
@@ -284,26 +215,14 @@ public class AIScript : MonoBehaviour
             else //If no waypoints listed, stay in position with starting rotation (i.e guard)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, startRotation, 2f * Time.deltaTime);
-                animator.SetBool("Walk", !(Mathf.Abs(Quaternion.Angle(transform.rotation, startRotation)) <= 3f));
+                enemyAnimator.animateWalk(!(Mathf.Abs(Quaternion.Angle(transform.rotation, startRotation)) <= 3f));
 
             }
         }
     }
     private bool reachedDestination()
     {
-        if (Vector3.Distance(transform.position, agent.destination) < 0.1f)
-        {
-            return true;
-        }
-        return false;
-        //if(!agent.pathPending && agent.remainingDistance <= 0.5f)
-        //{
-        //    if(!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
-        //    {
-        //        return true;
-        //    }
-        //}
-        //return false;
+        return Vector3.Distance(transform.position, agent.destination) < 0.1f;
     }
     private void checkForDetection()
     {
@@ -312,83 +231,36 @@ public class AIScript : MonoBehaviour
         {
             if (target == null) //checkLineOfSight()
             {
-                if (!animator.GetBool("Spawned")) animator.SetBool("Spawned", true);
-                animator.SetBool("Walk", true);
+                enemyAnimator.animateSpawn();
+                enemyAnimator.setWalkType(1);
+
+                enemyAnimator.animateWalk(true);
                 target = detection.target;
                 targetFound = true;
 
-                animator.SetInteger("WalkNum", 1);
+
             }
         }
         else if (targetFound && detection.target == null)
         {
-            animator.SetBool("Walk", false);
+            enemyAnimator.animateWalk(false);
+            enemyAnimator.setWalkType(0);
+
             target = null;
             targetFound = false;
             agent.ResetPath();
-
-            animator.SetInteger("WalkNum", 0);
             //if (detection.runbackDetector != null) detection.runbackDetector.enabled = true;
         }
 
     }
 
-    //Animation Events
-    public void ResetState()
-    {
-        canMove = true;
-        canRotate = true;
-        state = AIState.None;
-        if(attachPoint != null) attachPoint.rotation = Quaternion.identity;
-        previousAttack = currentAttack;
-        currentAttack = null;
-        agent.enabled = true;
-    }
-    public void StartMoving()
-    {
-        canMove = true;
-    }
-    public void PrepareAttack(GameObject o)
-    {
-        canMove = false;
-        canRotate = false;
-        agent.ResetPath();
-        if(o != null)
-        {
-            spellObject = GameObject.Instantiate(o, attachPoint.position, Quaternion.identity, attachPoint);
-            spellObject.GetComponent<SpellScript>().owner = gameObject;
-
-            if (o.GetComponent<SpellLocomotionScript>() != null)
-            {
-                attachPoint.rotation = Quaternion.LookRotation((target.transform.position - transform.position).normalized);
-                spellObject.GetComponent<SpellScript>().owner = attachPoint.gameObject;
-            }
-        }
-    }
-    public void Fire()
-    {
-        if (spellObject != null) spellObject.GetComponent<SpellScript>().shoot();
-    }
-    public void EnableDamagebox()
-    {
-        //damageBox.setDamageBox(true);
-        currentAttack.meleeDamageBox.setDamageBox(true);
-    }
-    public void DisableDamagebox()
-    {
-        //damageBox.setDamageBox(false);
-        currentAttack.meleeDamageBox.setDamageBox(false);
-    }
-    public void Terminate()
+    public void animateMud()
     {
         startShrink = true;
-        if(mud == null)
-        {
-            target.GetComponent<PlayerCombatComponent>().XP += baseXP; //Multiply by level to scale
-            Destroy(gameObject);
-        }
-        //if (mud != null) mud.SetActive(true);
-        //Destroy(gameObject);
+    }
+    public bool hasMud()
+    {
+        return mud != null;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -402,9 +274,7 @@ public class AIScript : MonoBehaviour
                 detection.isVisible = true;
 
                 checkForDetection();
-                //target = other.GetComponent<SpellScript>().owner;
             }
-            reduceHealth((int)other.GetComponent<SpellScript>().damage);
         }
     }
 }

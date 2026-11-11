@@ -39,7 +39,7 @@ public class FireBarrageScript : MonoBehaviour
         transform.Rotate(Vector3.up * 180f);
 
         StartCoroutine(FireProjectile());
-        StartCoroutine(Duration());
+        StartCoroutine(SpellTerminate());
     }
     IEnumerator FireProjectile()
     {
@@ -59,7 +59,7 @@ public class FireBarrageScript : MonoBehaviour
         }
 
     }
-    IEnumerator Duration()
+    IEnumerator SpellTerminate()
     {
         yield return new WaitForSeconds(DURATION); //Give time for all the projectiles to complete their fire
         enableFire = false;

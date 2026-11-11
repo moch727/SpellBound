@@ -108,7 +108,7 @@ public class ScreenFXController : MonoBehaviour
             darkenEffect.SetFloat("_ScreenPower", Mathf.MoveTowards(darkenEffect.GetFloat("_ScreenPower"), 1.5f, Time.deltaTime * fadeSpeed));
         }
 
-        if (player.combat.health / (float)player.combat.maxHealth <= 0.3f)
+        if (player.combat.healthManager.getHealthPercent() <= 0.3f)
         {
             if (!flash)
             {

@@ -1,14 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class SpellLocomotionScript : MonoBehaviour
+public class SpellLocomotionScript : MonoBehaviour, ISpellBehaviour
 {
     private Rigidbody rb;
     private SpellScript spellScript;
-
-    private Vector3 initialDestination; //for if object needs to move somewhere before tracking i.e. going up and then falling down
-
-
     [SerializeField] GameObject target;
 
     public float velocity;
@@ -21,13 +17,15 @@ public class SpellLocomotionScript : MonoBehaviour
     public string pivot;
 
     [HideInInspector]
-    public GameObject owner = null;
+    public GameObject owner;
     public bool complete;
 
     void Awake()
     { 
         rb = GetComponent<Rigidbody>();
         spellScript = GetComponent<SpellScript>();
+
+        
         rb.useGravity = useGravity;
         particle = GetComponent<ParticleSystem>();
         if(particle != null)
@@ -47,10 +45,6 @@ public class SpellLocomotionScript : MonoBehaviour
             }
             particle.Play();
         }
-
-        //main.emitterVelocity = Vector3.zero;
-        //main.startSpeed = 0f;
-        //1.53, 0, 0.4 position
     }
 
     private void FixedUpdate() //useful for physics calculations
@@ -83,12 +77,10 @@ public class SpellLocomotionScript : MonoBehaviour
 
     }
 
-    public void startMotion(GameObject owner)
+    public void triggerSpell(GameObject owner)
     {
         this.owner = owner;
         if (owner.CompareTag("Player")) this.owner = owner.GetComponent<PlayerScript>().cam;
-
-        //main.startSpeed = velocity;
 
         switch (spellScript.spellType) {
 
@@ -103,8 +95,6 @@ public class SpellLocomotionScript : MonoBehaviour
         }
 
         transform.parent = null;
-        this.owner = owner;
-        //main.emitterVelocity = this.owner.transform.forward * velocity;
     }
 
     private void OnTriggerEnter(Collider other)

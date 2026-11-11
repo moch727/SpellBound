@@ -1,6 +1,13 @@
 using UnityEngine;
 
-public class MeleeHitbox : MonoBehaviour
+public interface IHitbox
+{
+    // bool collided();
+    float getDamage();
+    bool isOwner(string target);
+}
+
+public class MeleeHitbox : MonoBehaviour, IHitbox
 {
     private Rigidbody rb;
     public bool hasCollided = false;
@@ -19,8 +26,12 @@ public class MeleeHitbox : MonoBehaviour
 
     public float getDamage()
     {
-        //return owner.currentAttack.attackDamage;
         return owner.getDamage();
+    }
+
+    public bool isOwner(string target)
+    {
+        return owner.CompareTag(target);
     }
 
     private void OnTriggerEnter(Collider other)

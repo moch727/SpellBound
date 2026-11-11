@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class FurnaceScript : MonoBehaviour
+public class FurnaceScript : MonoBehaviour, IInteractable
 {
     [SerializeField] GameObject lightEffect;
-
-    public bool lit;
 
     private void Awake()
     {
         lightEffect.SetActive(false);
     }
-    private void FixedUpdate()
+    public void interact(PlayerScript player)
     {
-        if(lit) lightEffect.SetActive(true);
+        if(!lightEffect.activeSelf) lightEffect.SetActive(false);
+        player.setMenuState();
+        player.UIManager.ShowFurnaceBox();
     }
 }

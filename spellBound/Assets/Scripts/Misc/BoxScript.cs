@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class BoxScript : MonoBehaviour
+public class BoxScript : MonoBehaviour, IInteractable
 {
     public Transform point;
     [SerializeField] GameObject includedItem;
 
     [SerializeField] GameObject itemObject;
-    public void OpenBox()
+    public void interact(PlayerScript player)
     {
         GetComponent<Animator>().enabled = true;
     }

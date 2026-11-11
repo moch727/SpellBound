@@ -1,7 +1,9 @@
 using UnityEngine;
-using UnityEngine.UI;
-
-public class SpellScript : MonoBehaviour
+public interface ISpellBehaviour
+{
+    void triggerSpell(GameObject owner);
+}
+public class SpellScript : MonoBehaviour, IHitbox
 {
     public enum SpellType
     {
@@ -20,29 +22,32 @@ public class SpellScript : MonoBehaviour
 
     public float damage;
     public int lightcost;
-    [SerializeField] GameObject lightPrefab;
-    private bool lightPlaced;
-
-    private SpellLocomotionScript locomotion;
 
     //[HideInInspector]
     public GameObject owner;
-
-    void Awake()
+    public float getDamage()
     {
-        locomotion = GetComponent<SpellLocomotionScript>();
+        return damage;
+    }
+
+    public bool isOwner(string target)
+    {
+        return owner.CompareTag(target);
     }
 
     public void shoot()
     {
         if(GetComponent<Collider>() != null) GetComponent<Collider>().enabled = true;
-        if (locomotion != null) locomotion.startMotion(owner);
-        else if (GetComponent<MudProjectileScript>() != null) GetComponent<MudProjectileScript>().startMotion();
+        ISpellBehaviour[] spellBehaviours = GetComponents<ISpellBehaviour>();
+        foreach(ISpellBehaviour i in spellBehaviours)
+        {
+            i.triggerSpell(owner);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if ((!other.isTrigger && (other.gameObject.CompareTag("Enemy") && owner.CompareTag("Player")) || (other.gameObject.CompareTag("Player") && owner.CompareTag("Enemy"))) || other.CompareTag("Interactable"))
+        if (other.GetComponent<EntityHealthScript>() != null && ((other.gameObject.CompareTag("Enemy") && owner.CompareTag("Player")) || (other.gameObject.CompareTag("Player") && owner.CompareTag("Enemy"))))
         {
             if (impactEffect != null) GameObject.Instantiate(impactEffect, transform.position, transform.rotation);
             if (spellType == SpellType.Projectile) Destroy(gameObject);
@@ -51,15 +56,8 @@ public class SpellScript : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        else if (other.gameObject.CompareTag("Terrain"))
+        else if (other.gameObject.CompareTag("Terrain")  || other.CompareTag("Interactable") && !other.isTrigger)
         {
-            if (lightPrefab != null && !lightPlaced)
-            {
-                GameObject lightObject = GameObject.Instantiate(lightPrefab, transform.position, Quaternion.identity);
-                lightObject.GetComponent<GroundLight>().attached = other.gameObject;
-                owner.GetComponent<PlayerCombatComponent>().addLight(lightObject);
-                lightPlaced = true;
-            }
             if (spellType == SpellType.Projectile) Destroy(gameObject);
 
         }

@@ -1,5 +1,5 @@
 {
-    "name": "MyInput",
+    "name": "PlayerInput",
     "maps": [
         {
             "name": "Player",
@@ -15,7 +15,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Aim",
+                    "name": "HoldLight",
                     "type": "Button",
                     "id": "1fce875a-275f-4057-8643-7ed21bc8e4b4",
                     "expectedControlType": "",
@@ -106,7 +106,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Aim",
+                    "action": "HoldLight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

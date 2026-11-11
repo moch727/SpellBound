@@ -6,9 +6,10 @@ public class PlayerScript : MonoBehaviour
 {
     
     [HideInInspector] public PlayerCombatComponent combat;
-    [HideInInspector] public PlayerLocomotionComponent locomotion;
+    private PlayerLocomotionComponent locomotion;
     [HideInInspector] public PlayerAnimator animator;
 
+   
     [HideInInspector] public GameObject cam;
 
     [SerializeField] GameObject firstPersonCam;
@@ -24,9 +25,10 @@ public class PlayerScript : MonoBehaviour
     public Action currentAction = Action.None;
     public enum Action
     {
-        None, Attack, Dodge, Interact, CutScene, Dead
+        None, Attack, Dodge, Interact, CutScene, Dead,
     }
 
+    [SerializeField] HoldLightFire holdLightFire;
     //[HideInInspector]
     public UIManager UIManager;
     public GameObject interactable;
@@ -48,15 +50,24 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         effect.transform.position = transform.position;
-        bool entered = false;
-        for (int i = 0; i < combat.lights.Length; i++)
+
+        if(environmentLight != null)
         {
-            if((combat.lights[i] != null && combat.lights[i].playerEntered) || environmentLight != null)
-            {
-                entered = true; break;
-            }
+            inLight = true;
         }
-        inLight = entered;
+        else
+        {
+            bool entered = false;
+            foreach (GroundLight l in combat.lights)
+            {
+                if (l != null && l.playerEntered)
+                {
+                    entered = true; break;
+                }
+            }
+            inLight = entered;
+        }
+
         effect.SetActive(inLight);
 
         //if (currentAction == Action.CutScene) animator.setToNeutral();
@@ -66,20 +77,25 @@ public class PlayerScript : MonoBehaviour
     {
         firstPersonCam.SetActive (false);
         thirdPersonCam.GetComponent<Camera>().enabled = true;
-        //thirdPersonCam.SetActive (true);
         thirdPersonCam.GetComponent<CinemachineBrain>().enabled = false; //To prevent control of the camera
     }
 
-    public void ResetAnimation()
+    public void setCutSceneState()
     {
-        GetComponent<Animator>().Rebind();
-        GetComponent<Animator>().Update(0f);
-        animator.setToNeutral();
+        currentAction = Action.CutScene;
+        animator.ResetAnimation();
+        cam.SetActive(false);
+        UIManager.GetComponent<Canvas>().enabled = false;
+    }
+    public void disableCutSceneState()
+    {
+        currentAction = PlayerScript.Action.None;
+        cam.SetActive(true);
+        UIManager.GetComponent<Canvas>().enabled = true;        
     }
     public void ResetCam()
     {
         firstPersonCam.SetActive(false);
-        //thirdPersonCam.SetActive(false);
         thirdPersonCam.GetComponent<CinemachineBrain>().enabled = true;
 
         cam.SetActive(true);
@@ -87,7 +103,7 @@ public class PlayerScript : MonoBehaviour
     public void ResetCharacter() //For respawn after gameover
     {
         currentAction = Action.None;
-        ResetAnimation();
+        animator.ResetAnimation();
         combat.ResetStats();
         transform.position = checkPoint.transform.position;
     }
@@ -95,7 +111,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (currentAction == Action.None && interactable != null)
         {
-            handleInteraction(interactable);
+            interactable.GetComponent<IInteractable>().interact(this);
         }
     }
     public void OnAttack()
@@ -111,7 +127,6 @@ public class PlayerScript : MonoBehaviour
     }
     public void OnDodge(InputAction.CallbackContext context)
     {
-        //inAction = true;
         if (currentAction == Action.None && context.performed && GetComponent<Rigidbody>().linearVelocity.magnitude >= 0.5f) //If velocity is above negligible size
         {
             animator.animateDodge();
@@ -119,11 +134,13 @@ public class PlayerScript : MonoBehaviour
             currentAction = Action.Dodge;
         }
     }
-    public void OnAim(InputAction.CallbackContext context)
+    public void OnHoldLight(InputAction.CallbackContext context)
     {
-        locomotion.faceForward();
-        animator.animateAim(context.started || context.performed);
-        locomotion.camRotation = (context.started || context.performed);
+        Debug.Log("HoldCalled");
+        // locomotion.faceForward();
+        // animator.animateHold(context.started || context.performed);
+        // locomotion.camRotation = context.started || context.performed;
+        // holdLightFire.setFireEffect(!context.canceled);
     }
     public void OnSwitchCam()
     {
@@ -142,82 +159,54 @@ public class PlayerScript : MonoBehaviour
             firstPersonCam.SetActive(false);
         }
     }
-    private void handleInteraction(GameObject o)
+    public void addSpell(GameObject spell) //Delegate to an inventory component later
     {
-        if(o.GetComponent<ItemScript>() != null)
-        {
-            combat.addSpell(o.GetComponent<ItemScript>().collect());
-            
-        }
-        else
-        {
-            GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-            ForceThirdPersonCamera();
-
-            if (o.GetComponent<BoxScript>() != null)
-            {
-                transform.position = o.GetComponent<BoxScript>().point.transform.position;
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(o.GetComponent<BoxScript>().point.transform.right), 360f);
-                locomotion.camRotation = false;
-
-                animator.setToNeutral();
-                animator.animateTrigger("Open");
-                currentAction = Action.Interact;
-            }
-            else if (o.GetComponent<FurnaceScript>() != null)
-            {
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation((o.transform.position - transform.position).normalized), 360f);
-                animator.setToNeutral();
-                animator.animateTrigger("Furnace");
-
-                currentAction = Action.Interact;
-            }
-        }
-
+        combat.addSpell(spell);
     }
-
-    public void enableInteractionForObject(string interaction)
+    public void setMenuState()
     {
-        if (interaction == "Box") interactable.GetComponent<BoxScript>().OpenBox();
-        else if (interaction == "Furnace")
-        {
-            interactable.GetComponent<FurnaceScript>().lit = true;
-
-            UIManager.ShowFurnaceBox();
-            //Then level up UI should showup, after make sure to trigger "Resume" for player to reset
-        }
+        animator.setToNeutral();
+        // locomotion.camRotation = false;
+        ForceThirdPersonCamera();
+        currentAction = Action.Interact;
+    }
+    public void disableMenuState()
+    {
+        currentAction = Action.None;
+        // locomotion.camRotation = true;
+        ResetCam();
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(currentAction != Action.Interact)
-        {
-            if (other.CompareTag("Projectile") && other.GetComponent<SpellScript>().owner != gameObject)
-            {
-                combat.reduceHealth((int)other.GetComponent<SpellScript>().damage);
-            }
-            else if (other.CompareTag("DamageBox"))
-            {
-                combat.reduceHealth((int)other.GetComponent<MeleeHitbox>().getDamage());
-            }
-        }
+        // if(currentAction != Action.Interact)
+        // {
+        //     if (other.CompareTag("Projectile") && other.GetComponent<SpellScript>().owner != gameObject)
+        //     {
+        //         combat.reduceHealth((int)other.GetComponent<SpellScript>().damage);
+        //     }
+        //     else if (other.CompareTag("DamageBox"))
+        //     {
+        //         combat.reduceHealth((int)other.GetComponent<MeleeHitbox>().getDamage());
+        //     }
+        // }
 
         if(other.CompareTag("LightSrc") && other.GetComponent<EnvironmentGroundLight>() != null) environmentLight = other.GetComponent<EnvironmentGroundLight>();
         if (other.CompareTag("Checkpoint"))
         {
-            Debug.Log("Checkpoint set!");
+            // Debug.Log("Checkpoint set!");
             checkPoint = other.transform;
         }
 
-        if (other.CompareTag("FallDamageBox"))
-        {
-            currentAction = Action.Dead;
-            combat.health = 0;
-            animator.DeathFadeIn();
-        }
+        // if (other.CompareTag("FallDamageBox"))
+        // {
+        //     currentAction = Action.Dead;
+        //     combat.health = 0;
+        //     animator.DeathFadeIn();
+        // }
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Interactable") && IsInteractable(other.gameObject) && isFacingObject(other.gameObject))
+        if (other.CompareTag("Interactable") && isFacingObject(other.gameObject))
         {
             interactable = other.gameObject;
         }
@@ -233,11 +222,6 @@ public class PlayerScript : MonoBehaviour
         return Mathf.Abs(transform.rotation.eulerAngles.y - r.eulerAngles.y) < 90;
         //float dot = Vector3.Dot(transform.forward, (o.transform.position - transform.position).normalized);
         //return dot > 0.7f;
-    }
-
-    private bool IsInteractable(GameObject o) //For new interact objects add its script here
-    {
-        return o.GetComponent<BoxScript>() != null || o.GetComponent<FurnaceScript>() != null || o.GetComponent<ItemScript>() != null;
     }
     private void OnTriggerExit(Collider other)
     {

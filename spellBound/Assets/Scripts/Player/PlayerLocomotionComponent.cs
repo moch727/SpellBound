@@ -6,8 +6,6 @@ public class PlayerLocomotionComponent : MonoBehaviour
     private PlayerScript playerScript;
     private Rigidbody rb;
 
-    //private PlayerInput playerInput;
-
     [HideInInspector] public Vector2 horizontalMovementInput;
 
     [SerializeField] private float velocity = 4f;
@@ -16,19 +14,16 @@ public class PlayerLocomotionComponent : MonoBehaviour
     [SerializeField] float maxSlopeAngle;
     private RaycastHit hit;
 
-    public bool camRotation = true;
-
     void Start()
     {
         playerScript = GetComponent<PlayerScript>();
-        //playerInput = GetComponent<PlayerInput>();
-
         rb = GetComponent<Rigidbody>();
     }
 
     void FixedUpdate()
     {
-        if (camRotation) //camRotation
+        //camRotation
+        if (playerScript.currentAction != PlayerScript.Action.CutScene || playerScript.currentAction != PlayerScript.Action.Interact) //camRotation
         {
             faceForward();
         }

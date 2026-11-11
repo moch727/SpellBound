@@ -1,10 +1,16 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.XR;
 
 public class PlayerCombatComponent : MonoBehaviour
 {
     private PlayerScript playerScript;
+    public EntityHealthScript healthManager;
 
     public GameObject[] spells;
     [SerializeField] int numOfSpells = 1;
@@ -19,18 +25,15 @@ public class PlayerCombatComponent : MonoBehaviour
 
     private bool spellActive = false;
 
-    public int maxHealth;
+    // public int maxHealth;
     public int maxLP;
 
     private float atkMultiplier = 1;
 
-
-    public GroundLight[] lights = new GroundLight[3];
+    public Queue<GroundLight> lights = new Queue<GroundLight>();
+    private const int MAXLIGHTS = 3;
     public int lightNums;
     private float timeElapsed;
-
-    //[HideInInspector]
-    public int health;
     public int LP;
 
     [Header("Stats")]
@@ -48,8 +51,12 @@ public class PlayerCombatComponent : MonoBehaviour
     void Awake()
     {
         playerScript = GetComponent<PlayerScript>();
-        health = maxHealth;
+        healthManager = GetComponent<EntityHealthScript>();
         LP = maxLP;
+    }
+    void FixedUpdate()
+    {
+        if(healthManager.getHealth() <= 0) handleDeath();
     }
     private void Update()
     {
@@ -85,19 +92,6 @@ public class PlayerCombatComponent : MonoBehaviour
         return spellActive;
     }
 
-    public void reduceHealth(int reduction)
-    {
-        if (health > 0)
-        {
-            health -= reduction;
-            if (health <= 0)
-            {
-                health = 0;
-                handleDeath();
-            }
-        }
-    }
-
     private void handleDeath()
     {
         // playerScript.currentAction = PlayerScript.Action.Dead;
@@ -106,13 +100,13 @@ public class PlayerCombatComponent : MonoBehaviour
 
     public void ResetStats()
     {
-        health = maxHealth;
+        healthManager.initialize();
         LP = maxLP;
         XP = 0;
     }
     public void cast()
     {
-        if (health >= spells[index].GetComponent<SpellScript>().lightcost)
+        if (healthManager.getHealth() >= spells[index].GetComponent<SpellScript>().lightcost)
         {
             GameObject projectile;
             projectile = spells[index];
@@ -122,50 +116,23 @@ public class PlayerCombatComponent : MonoBehaviour
 
             switch (projectile.GetComponent<SpellScript>().spellType)
             {
-                case (SpellScript.SpellType.LightDependant):
-                    //if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<SpellScript>().spellName))) //To prevent spamming of spikes while one is active
-                    //{
-                    //    //(spellObject == null || (spellObject != null && spellObject.GetComponent<SpellScript>().spellType != SpellScript.SpellType.LightDependant))
-                    //    //GameObject spell = null;
-                    //    //for (int i = 0; i < lights.Length; i++)
-                    //    //{
-                    //    //    if (lights[i] != null)
-                    //    //    {
-                    //    //        spell = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation); //what if light is on wall?
-                    //    //        spell.GetComponent<SpellScript>().owner = gameObject;
-                    //    //        spell.GetComponent<SpellScript>().damage *= atkMultiplier;
-                    //    //        for (int j = 0; j < spell.GetComponent<SpellScript>().otherProjectiles.Length; j++)
-                    //    //        {
-                    //    //            spell.GetComponent<SpellScript>().otherProjectiles[j].GetComponent<SpellScript>().owner = gameObject;
-                    //    //        }
-
-                    //    //        lights[i].fadeSpeed = lights[i].GetComponent<Light>().intensity / 2f;
-                    //    //        lights[i].GetComponent<SphereCollider>().radius = 0f;
-                    //    //        incrementLights();
-                    //    //    }
-
-                    //    //}
-                    //    //spellObject = spell;
-
-                    //    //for (int i = 0; i < lights.Length; i++)
-                    //    //{
-                    //    //    if (lights[i] != null)
-                    //    //    {
-                    //    //        spellObject = GameObject.Instantiate(projectile, lights[i].transform.position, lights[i].transform.rotation);
-                    //    //        break;
-                    //    //    }
-
-                    //    //}
-
-
-                    //    //spellObject.GetComponent<SpellScript>().owner = gameObject;
-                    //    //spellObject.GetComponent<SpellScript>().damage *= atkMultiplier;
-                    //}
-
+                case SpellScript.SpellType.LightDependant:
                     if (lightNums > 0 && (spellObject == null || (spellObject != null && projectile.GetComponent<SpellScript>().spellName != spellObject.GetComponent<LightDependentSpellScript>().spell.spellName))) //To prevent spamming of spikes while one is active
                     {
+                        Transform[] lightTransforms = new Transform[lightNums];
+                        int i = 0;
+                        foreach(GroundLight l in lights)
+                        {
+                            if(l != null) 
+                            {
+                                lightTransforms[i] = l.transform;
+                                l.clear();
+                                i++;
+                            }
+                        }
+
                         spellObject = GameObject.Instantiate(lightDependantObject);
-                        spellObject.GetComponent<LightDependentSpellScript>().CreateSpells(playerScript, projectile, lights, projectile.GetComponent<SpellScript>().damage * atkMultiplier);
+                        spellObject.GetComponent<LightDependentSpellScript>().CreateSpells(gameObject, projectile, lightTransforms, projectile.GetComponent<SpellScript>().damage * atkMultiplier);
 
                         reduceLP(projectile);
                     }
@@ -192,23 +159,27 @@ public class PlayerCombatComponent : MonoBehaviour
 
         }
     }
-
+    public void reduceHealth(int damage)
+    {
+        healthManager.reduceHealth(damage);
+    }
     private void reduceLP(GameObject projectile)
     {
-        if (health > 0)
+        if (healthManager.getHealth() > 0)
         {
             LP -= projectile.GetComponent<SpellScript>().lightcost;
             if (LP < 0)
             {
-                health += LP;
+                healthManager.reduceHealth(Mathf.Abs(LP));
+                // health += LP;
                 LP = 0;
             }
 
-            if (health <= 0)
-            {
-                handleDeath();
-                health = 0;
-            }
+            // if (health <= 0)
+            // {
+            //     handleDeath();
+            //     health = 0;
+            // }
         }
 
     }
@@ -223,23 +194,19 @@ public class PlayerCombatComponent : MonoBehaviour
 
     public void addLight(GameObject o)
     {
-        int count = 0;
-        for (int i = 0; i < lights.Length; i++)
+        if (lightNums >= MAXLIGHTS)
         {
-            if (lights[i] != null) count++;
+            removeLight();
         }
-        if (count != lightNums) lightNums = count;
-
-        if (lightNums >= 3)
-        {
-            //incrementLights();
-            lights[0].fadeSpeed = 50;
-            lights[0] = null;
-            incrementLights();
-            lightNums--;
-        }
-        lights[lightNums] = o.GetComponent<GroundLight>();
+        lights.Enqueue(o.GetComponent<GroundLight>());
         lightNums++;
+    }
+
+    private void removeLight()
+    {
+        GroundLight light = lights.Dequeue();
+        if(light != null) light.clear();
+        lightNums--;
     }
 
     private void UpdateLightTick()
@@ -249,7 +216,7 @@ public class PlayerCombatComponent : MonoBehaviour
             timeElapsed += Time.deltaTime;
             if (timeElapsed >= 1) //1 is lp recovery interval
             {
-                if (health < maxHealth) health += 1;
+                if (healthManager.getHealthPercent() < 1) healthManager.increaseHealth(1);
                 else if (LP < maxLP) LP += 1; //combat.maxExtraLP
                 timeElapsed = 0f;
             }
@@ -257,13 +224,9 @@ public class PlayerCombatComponent : MonoBehaviour
     }
     private void incrementLights()
     {
-        for (int i = 0; i < lights.Length - 1; i++)
+        while(lightNums > 0 && lights.Peek() == null)
         {
-            if (lights[i] == null)
-            {
-                lights[i] = lights[i + 1];
-                lights[i + 1] = null;
-            }
+            removeLight();
         }
     }
 
@@ -278,15 +241,25 @@ public class PlayerCombatComponent : MonoBehaviour
 
             XP -= requiredXP;
 
-            float newMaxHealth = (float)maxHealth * (Mathf.Pow(1f + (float)(Vitality / 10f), 2f));
-            maxHealth = (int)newMaxHealth;
-            health = maxHealth;
+            float newMaxHealth = (float) healthManager.getMAXHealth() * Mathf.Pow(1f + (float)(Vitality / 10f), 2f);
+            healthManager.setMaxHealth((int) newMaxHealth);
+            healthManager.initialize();
 
             atkMultiplier = Mathf.Log(Potency) + 1f;
 
             requiredXP *= Mathf.Pow(1f + (float)(level / 10f), 3f);
             //requiredXP *= (1 + (level / 10));
             //change required xp for next level
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("FallDamageBox"))
+        {
+            playerScript.currentAction = PlayerScript.Action.Dead;
+            healthManager.reduceHealth(int.MaxValue);
+            playerScript.animator.DeathFadeIn();
         }
     }
 }

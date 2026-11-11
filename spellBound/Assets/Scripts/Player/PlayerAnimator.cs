@@ -24,21 +24,26 @@ public class PlayerAnimator : MonoBehaviour
             animator.SetFloat("MotionY", locomotionComponent.horizontalMovementInput.y);
         }
     }
-
+    public void ResetAnimation()
+    {
+        GetComponent<Animator>().Rebind();
+        GetComponent<Animator>().Update(0f);
+        setToNeutral();
+    }
     public void setToNeutral()
     {
         animator.SetFloat("MotionX", 0);
         animator.SetFloat("MotionY", 0);
     }
-    public void animateAim(bool aim)
+    public void animateHold(bool hold)
     {
-        animator.SetBool("Load", aim);
+        animator.SetBool("Hold", hold);
     }
     public void animateAttack()
     {
         animator.SetTrigger("Attack");
         animator.SetInteger("SpellType", combatComponent.currentSpell().GetComponent<SpellScript>().animID);
-        animator.SetBool("Load", false);
+        // animator.SetBool("Load", false);
     }
 
     public void animateDodge()
@@ -61,15 +66,10 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetTrigger(action);
     }
-
-    public void TriggerInteract(string interaction)
-    {
-        script.enableInteractionForObject(interaction);
-    }
     public void ResetState()
     {
         script.currentAction = PlayerScript.Action.None;
-        script.locomotion.camRotation = true;
+        // locomotionComponent.camRotation = true;
 
         script.ResetCam();
     }

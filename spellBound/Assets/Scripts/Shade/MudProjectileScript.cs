@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MudProjectileScript : MonoBehaviour
+public class MudProjectileScript : MonoBehaviour, ISpellBehaviour
 {
     private SpellScript script;
     private Rigidbody rb;
@@ -13,9 +13,9 @@ public class MudProjectileScript : MonoBehaviour
         script = GetComponent<SpellScript>();
         rb = GetComponent<Rigidbody>();
     }
-    public void startMotion()
+    public void triggerSpell(GameObject owner)
     {
-        GameObject target = script.owner.GetComponent<AIScript>().target;
+        GameObject target = owner.GetComponent<AIScript>().target;
 
         Vector3 targetPosition = new Vector3(target.transform.position.x, 0, target.transform.position.z);
         Vector3 currentPosition = new Vector3(transform.position.x, 0, transform.position.z);
@@ -23,7 +23,7 @@ public class MudProjectileScript : MonoBehaviour
         float travellTime = Mathf.Sqrt(2 * Mathf.Abs(target.transform .position.y - transform.position.y) / 9.8f); //kinematics formula
         float velocity = Vector3.Distance(targetPosition, currentPosition) / travellTime;
 
-        rb.linearVelocity = script.owner.transform.forward * velocity;
+        rb.linearVelocity = owner.transform.forward * velocity;
         transform.parent = null;
         rb.useGravity = true;
     }

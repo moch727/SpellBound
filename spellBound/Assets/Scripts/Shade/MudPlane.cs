@@ -8,7 +8,7 @@ public class MudPlane : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             other.GetComponent<Rigidbody>().linearDamping = owner.mudLevel * 0.5f;
-            if (owner.mudLevel >= 3) other.GetComponent<PlayerCombatComponent>().reduceHealth(other.GetComponent<PlayerCombatComponent>().health);
+            if (owner.mudLevel >= 3) other.GetComponent<EntityHealthScript>().reduceHealth(9999);
         }
     }
 

@@ -15,7 +15,6 @@ public class GateScript : MonoBehaviour
 
     [HideInInspector]
     public bool objectivesComplete = false;
-    private bool startMoving;
 
     private void Awake()
     {
@@ -58,18 +57,14 @@ public class GateScript : MonoBehaviour
                     animator.enabled = true;
                     if (transitionCam.CompareTo("CutScene") == 0)
                     {
-                        player.currentAction = PlayerScript.Action.CutScene;
-                        player.ResetAnimation();
-                        player.cam.SetActive(false);
+                        player.setCutSceneState();
                         cam.enabled = true;
-                        player.UIManager.GetComponent<Canvas>().enabled = false;
                     }
                     else
                     {
-                        player.currentAction = PlayerScript.Action.None;
-                        player.cam.SetActive(true);
+                        player.disableCutSceneState();
+
                         cam.enabled = false;
-                        player.UIManager.GetComponent<Canvas>().enabled = true;
                         startFade = true;
                         cutSceneComplete = true;
                     }
