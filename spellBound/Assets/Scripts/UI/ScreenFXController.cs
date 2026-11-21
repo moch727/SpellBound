@@ -4,7 +4,6 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class ScreenFXController : MonoBehaviour
 {
-    [SerializeField] ScriptableRendererFeature effectRenderer;
     [SerializeField] PlayerScript player; //For tracking hp
 
     [Header("Hurt oscillation")]
@@ -19,7 +18,7 @@ public class ScreenFXController : MonoBehaviour
 
     //For Fade in and out
     [SerializeField] float fadeSpeed;
-    private float originalIntensity;
+    private float originalIntensity = 1.5f;
     private float fadeTargetValue;
 
     public enum ScreenState
@@ -28,19 +27,18 @@ public class ScreenFXController : MonoBehaviour
     }
 
     public ScreenState state;
-    private void Awake()
+    void Start()
     {
-        darkenEffect.SetFloat("_ScreenPower", 1.5f);
+        darkenEffect.SetFloat("_ScreenPower", 0f);
+        Fadeout();
+        Debug.Log(state);
     }
 
     void LateUpdate()
     {
-        if (player != null && state == ScreenState.None && player.currentAction != PlayerScript.Action.CutScene) ManageHurtEffect();
+        if (player != null && state == ScreenState.None && player.currentAction != PlayerScript.Action.CutScene && player.currentAction != PlayerScript.Action.Dead) ManageHurtEffect();
         if (state == ScreenState.FadeInOut) ManageFadeInOut();
-        if (state == ScreenState.FadingIn || state == ScreenState.FadingOut)
-        {
-            ManageFade(fadeTargetValue);
-        }
+        if (state == ScreenState.FadingIn || state == ScreenState.FadingOut) ManageFade(fadeTargetValue);
     }
 
     public void FadeIn()
@@ -63,6 +61,7 @@ public class ScreenFXController : MonoBehaviour
     }
     void ManageFade(float value)
     {
+        Debug.Log("called");
         darkenEffect.SetFloat("_ScreenPower", Mathf.MoveTowards(darkenEffect.GetFloat("_ScreenPower"), value, Time.deltaTime * fadeSpeed));
 
         if (Mathf.Abs(value - darkenEffect.GetFloat("_ScreenPower")) < 0.001f)

@@ -80,7 +80,7 @@ public class PlayerAnimator : MonoBehaviour
     }
     public void DeathFadeIn()
     {
-        script.UIManager.gameplayUI.gameObject.SetActive(false);
+//        script.UIManager.gameplayUI.gameObject.SetActive(false);
         screenFXController.FadeIn();
     }
 }

@@ -5,9 +5,7 @@ using UnityEngine;
 
 public class GroundLight : MonoBehaviour
 {
-    [SerializeField] int maxlightlvl;
     [SerializeField] float duration;
-    [SerializeField] float fadeTime;
     public float fadeSpeed;
     private float timeElapsed;
     [HideInInspector]
